@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <!-- warm orb: cream heart -> coral -> page accent red -->
+    <radialGradient id="orb" cx="0.36" cy="0.32" r="0.85">
+      <stop offset="0%" stop-color="#FDF8EE"/>
+      <stop offset="28%" stop-color="#F1ECE2"/>
+      <stop offset="58%" stop-color="#F0705A"/>
+      <stop offset="100%" stop-color="#E0352E"/>
+    </radialGradient>
+    <!-- soft halo of the accent red -->
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#E0352E" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#E0352E" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- dark panel, the page's night background -->
+  <rect x="1" y="1" width="62" height="62" rx="14" fill="#19151B" stroke="#F1ECE2" stroke-opacity="0.14" stroke-width="1"/>
+
+  <!-- breathing halo -->
+  <circle cx="32" cy="32" r="27" fill="url(#halo)">
+    <animate attributeName="opacity" values="0.55;1;0.55" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+  </circle>
+
+  <!-- the orb, slowly swelling and settling -->
+  <g transform="translate(32,32)">
+    <g>
+      <animateTransform attributeName="transform" type="scale" values="1;1.06;1" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+      <circle cx="0" cy="0" r="15" fill="url(#orb)"/>
+    </g>
+    <!-- faint outer breath, trailing the heart -->
+    <g opacity="0.5">
+      <animateTransform attributeName="transform" type="scale" values="1;1.14;1" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+      <circle cx="0" cy="0" r="15" fill="url(#orb)" opacity="0.4"/>
+    </g>
+  </g>
+</svg>
