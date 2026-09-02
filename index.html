@@ -779,16 +779,17 @@ const CELLS_MAX = 80;      /* wires across the plate's short side */
 const PITCH_MIN = 4.5;     /* CSS px per cell, the floor before backing off */
 const CELLS_MIN = 14;
 const BLOCK = 0.29;        /* woven block half-extent, as a fraction of cells */
-const SPARKS = 3;
+const SPARKS = 1;
 const TRAIL = 14;          /* samples per spark tail */
 
-/* Spark tuning is expressed in cell units, so it is rescaled whenever the
-   density changes — otherwise a denser grid silently halves the apparent
-   speed, shortens the tail and shrinks the glow. Baseline is 22 wires. */
+/* Spark motion is expressed in cell units, so speed and tail spacing are
+   rescaled whenever density changes. Glow falloff stays in grid space so the
+   spark remains on one wire at every density. Baseline is 22 wires. */
 /* turns per second per 1000 woven cells: rate is normalised to the size of
    the block so a denser weave keeps the same visible rate of reconfiguration */
-const FLIP_RATE = 5.6;
-let cellCount = CELLS_MAX, scale = 1, TRAIL_STEP = 0.18, SPEED = 3.1, GLOW = 7;
+const FLIP_RATE = 28;
+let cellCount = CELLS_MAX, scale = 1, TRAIL_STEP = 0.18, SPEED = 3.1;
+const GLOW = 4.5;         /* tight enough to stay on one wire; adjacent wires catch a dim trace */
 let flipRate = 1;
 function setDensity(pxW, pxH) {
   cellCount = Math.max(CELLS_MIN,
@@ -796,9 +797,8 @@ function setDensity(pxW, pxH) {
   scale = cellCount / 22;
   TRAIL_STEP = 0.18 * scale;
   SPEED = 3.1 * scale;
-  GLOW = 7 / (scale * scale);
 }
-const FLIPS = 8;       /* cells allowed to be mid-turn at once */
+const FLIPS = 40;      /* cells allowed to be mid-turn at once */
 const FLIP_TIME = 0.55;
 
 const FRAG = `#version 300 es
