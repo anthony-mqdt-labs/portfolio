@@ -772,12 +772,14 @@ const ARC_LEN = Math.PI / 4;   /* quarter arc of radius 1/2 */
 
 /* Density is measured off the source plate: 40px pitch with a 4px stroke,
    so stroke/pitch = 0.10 (w = 0.05 half-width) and ~40 wires across the
-   short side. On a narrow hero column that many wires would drive the
-   stroke under a device pixel and shimmer, so the count backs off to hold
-   a minimum pitch — full density where there is room, never aliased. */
-const CELLS_MAX = 80;      /* wires across the plate's short side */
+   short side. The weave now runs at DENSITY of that — 20% fewer cells —
+   so the lattice reads airier while keeping its physical size. On a narrow
+   hero column the count still backs off to hold a minimum pitch: fewer
+   cells where there is room, never aliased. */
+const DENSITY = 0.8;       /* weave density vs the source: cells 20% sparser */
+const CELLS_MAX = 64;      /* wires across the plate's short side (80 * DENSITY) */
 const PITCH_MIN = 4.5;     /* CSS px per cell, the floor before backing off */
-const CELLS_MIN = 14;
+const CELLS_MIN = 11;      /* the sparsest the weave is allowed to get (14 * DENSITY) */
 const BLOCK = 0.29;        /* woven block half-extent, as a fraction of cells */
 const SPARKS = 1;
 const TRAIL = 14;          /* samples per spark tail */
@@ -793,7 +795,7 @@ const GLOW = 4.5;         /* tight enough to stay on one wire; adjacent wires ca
 let flipRate = 1;
 function setDensity(pxW, pxH) {
   cellCount = Math.max(CELLS_MIN,
-              Math.min(CELLS_MAX, Math.floor(Math.min(pxW, pxH) / PITCH_MIN)));
+              Math.min(CELLS_MAX, Math.floor(Math.min(pxW, pxH) * DENSITY / PITCH_MIN)));
   scale = cellCount / 22;
   TRAIL_STEP = 0.18 * scale;
   SPEED = 3.1 * scale;
@@ -924,6 +926,7 @@ let entries = [];          /* every border point a wire crosses */
 let blockCells = [];       /* the Truchet cells, the only ones that turn */
 let sparks = [];
 let flips = [];
+let blockBox = null;       /* the woven Truchet block, in cell coords */
 const trailBuf = new Float32Array(SPARKS * TRAIL * 3);
 const flipBuf = new Float32Array(FLIPS * 4);
 
@@ -938,6 +941,7 @@ function buildGrid(pxW, pxH) {
   s = Math.min(s, ((nx / 2) | 0) - 1, ((ny / 2) | 0) - 1);
   const bx0 = ((nx / 2) | 0) - s, bx1 = bx0 + 2 * s - 1;
   const by0 = ((ny / 2) | 0) - s, by1 = by0 + 2 * s - 1;
+  blockBox = {bx0: bx0, by0: by0, bx1: bx1, by1: by1};
 
   cells = new Uint8Array(nx * ny);
   blockCells = [];
@@ -968,7 +972,7 @@ function buildGrid(pxW, pxH) {
   flipRate = FLIP_RATE * blockCells.length / 1000;
   uploadCells();
   sparks = [];
-  for (let k = 0; k < SPARKS; k++) sparks.push(newSpark(k));
+  for (let k = 0; k < SPARKS; k++) sparks.push(newSpark());
   flips = [];
 }
 
@@ -1049,26 +1053,64 @@ function placeSpark(sp, i, j, e) {
   sp.lastX = p[0]; sp.lastY = p[1];
 }
 
-function newSpark(slot) {
+/* The spark is born in the woven heart of the plate rather than run in from
+   a border, so the piece opens on its middle. Its comet is traced backward
+   along the true wire, so at first sight it is already resting on the weave. */
+function newSpark() {
   const sp = {i: 0, j: 0, e: 0, t: 0, off: -1, offLim: 0, x: 0, y: 0,
               dir: STEP_D[0], exitEdge: 0, trail: [], lastX: 0, lastY: 0};
-  const en = entries[(Math.random() * entries.length) | 0];
-  placeSpark(sp, en.i, en.j, en.e);
-  /* start it out of view and stagger the run-in, so the fleet does not
-     enter in lockstep. reenter() will drop it back on this same border. */
-  sp.exitEdge = (en.e + 2) % 4;
-  sp.dir = STEP_D[sp.exitEdge];
-  sp.off = 0;
-  sp.offLim = slot * 2.2 + Math.random() * 1.5;
-  const m = MIDPT[en.e];
-  sp.x = en.i + m[0] - sp.dir[0] * sp.offLim;
-  sp.y = en.j + m[1] - sp.dir[1] * sp.offLim;
-  sp.trail.length = 0;
-  for (let k = 0; k < TRAIL; k++) {
-    sp.trail.push([sp.x - sp.dir[0] * k * TRAIL_STEP, sp.y - sp.dir[1] * k * TRAIL_STEP]);
-  }
-  sp.lastX = sp.x; sp.lastY = sp.y;
+  const {bx0, by0, bx1, by1} = blockBox;
+  const s = (bx1 - bx0 + 1) / 2;                 /* half-extent of the weave */
+  const m = Math.max(0, Math.floor(s * 0.5));    /* keep to the inner half */
+  const range = 2 * (s - m);
+  sp.i = bx0 + m + ((Math.random() * range) | 0);
+  sp.j = by0 + m + ((Math.random() * range) | 0);
+  sp.e = (Math.random() * 4) | 0;
+  sp.t = 0.25 + Math.random() * 0.5;             /* born mid-wire, not at a joint */
+  const ex = PAIR[codeAt(sp.i, sp.j)][sp.e];
+  const p = sparkPos(sp);
+  sp.x = p[0]; sp.y = p[1];
+  sp.dir = STEP_D[ex];
+  birthTail(sp);
+  sp.lastX = p[0]; sp.lastY = p[1];
   return sp;
+}
+
+/* Lay the comet down backward from the head, following the real wire the
+   spark just travelled (arcs included), so a mid-plate birth never floats
+   off the weave. */
+function birthTail(sp) {
+  sp.trail.length = 0;
+  const head = sparkPos(sp);
+  sp.trail.push([head[0], head[1]]);
+  let i = sp.i, j = sp.j, e = sp.e, t = sp.t;
+  let ex = PAIR[codeAt(i, j)][e];
+  let L = ((e + ex) % 4 === 2) ? 1 : ARC_LEN;
+  let walked = 0;                    /* distance walked back from the head */
+  let guard = 0;
+  while (sp.trail.length < TRAIL && guard++ < 64) {
+    const target = sp.trail.length * TRAIL_STEP;  /* where the next sample sits */
+    const left = t * L;                           /* room left in this cell */
+    if (target - walked <= left + 1e-9) {
+      const tt = Math.max(0, t - (target - walked) / L);
+      wirePoint(e, ex, tt, _pt);
+      sp.trail.push([i + _pt[0], j + _pt[1]]);
+      t = tt; walked = target;
+    } else {
+      /* not enough room: cross the entry edge into the previous cell */
+      walked += left;
+      const d = STEP_D[e];
+      i -= d[0]; j -= d[1];
+      if (i < 0 || j < 0 || i >= nx || j >= ny) break;   /* ran off the plate */
+      const cP = codeAt(i, j);
+      if (cP === EMPTY) break;
+      const exPrev = (e + 2) % 4;                       /* the shared edge */
+      e = PAIR[cP][exPrev];
+      if (e < 0) break;
+      ex = exPrev; t = 1;
+      L = ((e + ex) % 4 === 2) ? 1 : ARC_LEN;
+    }
+  }
 }
 
 function advance(sp, dt) {
