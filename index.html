@@ -172,7 +172,7 @@ main{display:block;}
 .sec-head{
   display:flex;align-items:flex-end;gap:16px;
   padding-bottom:12px;
-  border-bottom:1px solid var(--hairline);
+  border-bottom:2px solid var(--hairline);
   margin-bottom:clamp(26px,4.5vh,48px);
 }
 .sec-idx{
@@ -187,7 +187,6 @@ main{display:block;}
   font-size:clamp(1.2rem,1.9vw,1.55rem);
   font-weight:600;letter-spacing:-0.01em;line-height:1.1;
 }
-.sec-rule{flex:1;height:1px;background:var(--hairline);align-self:center;margin-left:6px;}
 .sec-folio{color:var(--dim);flex-shrink:0;}
 
 /* about */
@@ -394,7 +393,6 @@ main{display:block;}
   .index-cats{grid-template-columns:1fr 1fr;}
   .colophon-grid{grid-template-columns:1fr;}
   .masthead-meta .mono:last-child{display:none;}
-  .sec-rule{display:none;}
   .sec-folio{display:none;}
   .cover-name{font-size:clamp(2.2rem,9vw,3.5rem);}
 }
@@ -573,10 +571,6 @@ function esc(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function secRunning(page) {
-  return '<div class="sec-running mono"><span>Portfolio &mdash; Vers.\u00a0001</span><span>Page ' + page + '</span></div>';
-}
-
 function secHead(idx, kicker, title, folio) {
   return '<div class="sec-head">' +
     '<span class="sec-idx" aria-hidden="true">' + idx + '</span>' +
@@ -584,7 +578,6 @@ function secHead(idx, kicker, title, folio) {
       '<span class="sec-kicker mono">' + esc(kicker) + '</span>' +
       '<h2 class="sec-title">' + esc(title) + '</h2>' +
     '</div>' +
-    '<span class="sec-rule" aria-hidden="true"></span>' +
     '<span class="sec-folio mono" aria-hidden="true">' + esc(folio) + '</span>' +
   '</div>';
 }
@@ -593,8 +586,7 @@ function renderMain() {
   /* 01 About */
   const aboutHTML =
     '<section class="section" id="about" aria-labelledby="about-title"><div class="wrap">' +
-      secRunning('01') +
-      secHead('01', 'Lead', 'About', 'P. 02') +
+      secHead('01', 'Lead', 'About', 'P. 01') +
       '<p class="about-text" id="about-title">' + esc(CONTENT.about) + '</p>' +
     '</div></section>';
 
@@ -620,8 +612,7 @@ function renderMain() {
 
   const expHTML =
     '<section class="section" id="experience" aria-labelledby="exp-title"><div class="wrap">' +
-      secRunning('02') +
-      secHead('02', 'Eight Years of Shipping', 'Experience', 'P. 03') +
+      secHead('02', 'Eight Years of Shipping', 'Experience', 'P. 02') +
       '<div class="jobs" id="exp-title">' + jobsHTML + '</div>' +
     '</div></section>';
 
@@ -660,8 +651,7 @@ function renderMain() {
 
   const projHTML =
     '<section class="section" id="projects" aria-labelledby="proj-title"><div class="wrap">' +
-      secRunning('03') +
-      secHead('03', 'WIP', 'Projects', 'P. 04') +
+      secHead('03', 'WIP', 'Projects', 'P. 03') +
       '<div class="plates" id="proj-title">' + platesHTML + '</div>' +
     '</div></section>';
 
@@ -683,16 +673,14 @@ function renderMain() {
 
   const skillsSection =
     '<section class="section" id="skills" aria-labelledby="skills-title"><div class="wrap">' +
-      secRunning('04') +
-      secHead('04', 'Index', 'Skills', 'P. 05') +
+      secHead('04', 'Index', 'Skills', 'P. 04') +
       '<div class="index-cats" id="skills-title">' + skillsHTML + '</div>' +
     '</div></section>';
 
   /* 05 Contact / Colophon */
   const contactHTML =
     '<section class="section" id="contact" aria-labelledby="contact-title"><div class="wrap">' +
-      secRunning('05') +
-      secHead('05', 'Colophon', 'Contact', 'P. 06') +
+      secHead('05', 'Colophon', 'Contact', 'P. 05') +
       '<div class="colophon-grid" id="contact-title">' +
         '<div>' +
           '<a href="mailto:' + esc(CONTENT.email) + '?subject=Inquiry%20from%20your%20portfolio">' +
@@ -724,7 +712,7 @@ function renderChrome() {
     '<a class="lnk" href="' + l.url + '">' + esc(l.label) + '</a>'
   ).join('');
   $('#footerRow').innerHTML =
-    '<span>Portfolio \u2014 Vers.\u00a0001</span>' +
+    '<span>Portfolio \u2014 Editorial Style</span>' +
     '<span>\u00a9 2026 ' + esc(CONTENT.name) + '</span>' +
     '<span>' + esc(CONTENT.location) + '</span>';
 }
