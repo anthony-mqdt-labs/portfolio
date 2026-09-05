@@ -419,6 +419,8 @@ main{display:block;}
   if (!ok) document.documentElement.classList.add('no-webgl');
 })();
 </script>
+<link rel="stylesheet" href="portfolio-switcher.css">
+<script src="portfolio-switcher.js" defer></script>
 </head>
 <body>
   <!-- subpixel beacon: 1x1 tripwire, fires on every page load -->
@@ -1339,5 +1341,16 @@ try {
   /* fallback gradient remains visible */
 }
 </script>
+
+<details class="portfolio-switcher">
+  <summary aria-label="Switch portfolio version" title="Switch portfolio version">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="3" cy="9" r="1.5"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="9" r="1.5"/></svg>
+  </summary>
+  <nav aria-label="Portfolio version">
+    <a href="index.html" aria-current="page">Main</a>
+    <a href="inspiration/frontier.html">Frontier</a>
+    <a href="inspiration/inspiration-fieldbook.html">Fieldbook</a>
+  </nav>
+</details>
 </body>
 </html>

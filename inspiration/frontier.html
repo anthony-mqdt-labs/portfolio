@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090c0b">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Anthony Marquardt. Frontend engineering, cross-platform systems, and an unreasonable amount of curiosity.">
+  <title>Anthony Marquardt — Engineering the possible</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/400.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/500.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/700.css">
+  <link rel="stylesheet" href="frontier.css">
+  <script src="frontier.js" defer></script>
+<link rel="stylesheet" href="../portfolio-switcher.css">
+<script src="../portfolio-switcher.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header wrap">
+    <a class="identity" href="#main" aria-label="Anthony Marquardt, home"><span class="monogram" aria-hidden="true">a<span>m</span></span><span>ANTHONY<br>MARQUARDT</span></a>
+    <nav aria-label="Main navigation"><a href="#work">Work <span>03</span></a><a href="#experience">Experience</a><a class="nav-contact" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a></nav>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> FRONTEND ENGINEER / SAN DIEGO, CA</p>
+        <h1 id="hero-title">Complexity,<br>beautifully<br><span class="accent">resolved.</span></h1>
+        <p class="hero-description">I turn difficult problems into interfaces<br class="desktop-break"> that feel like second nature.</p>
+        <a class="primary-link" href="#work">Explore the work <span aria-hidden="true">↘</span></a>
+      </div>
+
+      <div class="sculpture" id="sculpture">
+        <img class="field-fallback" src="frontier-field.svg" alt="A lime-green trefoil knot described by thousands of points in three-dimensional space" width="900" height="900">
+        <canvas id="field" aria-label="Interactive three-dimensional point field. Select Knot, Sphere, or Wave below to transform it."></canvas>
+        <span class="cross cross-a" aria-hidden="true">+</span><span class="cross cross-b" aria-hidden="true">+</span>
+        <div class="field-note"><span class="tiny-line"></span> A LITTLE ORDER.<br>A LITTLE POSSIBILITY.</div>
+        <span class="field-axis" aria-hidden="true">X / Y / Z</span>
+      </div>
+      <div class="hero-bottom">
+        <a href="#work" class="scroll-note"><span class="down-arrow" aria-hidden="true">↓</span> SCROLL TO DISCOVER</a>
+        <div class="field-ui" hidden>
+          <div class="field-choices" role="group" aria-label="Point field shape">
+            <button type="button" data-shape="knot" aria-pressed="true">01 Knot</button>
+            <button type="button" data-shape="sphere" aria-pressed="false">02 Sphere</button>
+            <button type="button" data-shape="wave" aria-pressed="false">03 Wave</button>
+          </div>
+          <button id="motion" type="button" aria-label="Pause animation" aria-pressed="false"><span aria-hidden="true">Ⅱ</span></button>
+        </div>
+      </div>
+      <p class="sr-only" id="field-status" role="status">Knot selected.</p>
+    </section>
+
+    <section class="intro-strip" aria-label="Specialties">
+      <div class="wrap specialties"><span>CREATIVE THINKING</span><span class="asterisk" aria-hidden="true">✳</span><span>PRODUCTION DISCIPLINE</span><span class="asterisk" aria-hidden="true">✳</span><span>HUMAN INTERFACES</span><span class="asterisk" aria-hidden="true">✳</span></div>
+    </section>
+
+    <section class="work-section wrap" id="work" aria-labelledby="work-title">
+      <div class="section-top"><p class="eyebrow">01 / SELECTED EXPLORATIONS</p><span class="section-aside">Independent projects · Work in progress</span></div>
+      <div class="section-intro"><h2 id="work-title">Built to make<br><span class="muted">a difference.</span></h2><p>Components, conversations, and local intelligence.<br>Different problems. The same attention to how things work.</p></div>
+
+      <article class="featured-project">
+        <div class="project-visual video-visual">
+          <div class="window-bar"><span><i></i><i></i><i></i></span><span>CASCADE TREE / COMPONENT SYSTEM</span><span aria-hidden="true">↗</span></div>
+          <video controls playsinline preload="metadata" poster="frontier-cascade.jpg" aria-label="Cascade Tree component library demonstration"><source src="../cascade-tree.mp4" type="video/mp4">Your browser does not support this video. <a href="../cascade-tree.mp4">Download the component library demonstration.</a></video>
+          <div class="visual-bottom"><span>REUSABLE BY DESIGN.</span><span>REACT + TAILWIND V4</span></div>
+        </div>
+        <div class="project-info">
+          <p class="project-number">01 <span>/ INTERFACE SYSTEMS</span></p>
+          <h3>Many components.<br>One language.</h3>
+          <p>A reusable component kit for the Cascade Tree accountability terminal. Panels, badges, KPIs, and tooltips that belong to the same system.</p>
+          <p>Pure-SVG charts. No chart libraries.</p>
+          <ul class="tags" aria-label="Technologies"><li>React</li><li>TypeScript</li><li>Tailwind v4</li></ul>
+          <a class="text-link" href="../cascade-tree.mp4">Watch the demonstration <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <div class="project-pair">
+        <article class="small-project banter-project">
+          <div class="project-diagram" aria-label="Conceptual relationship between Banter’s interface, shared contracts, and evaluations">
+            <div class="diagram-heading"><span>BANTER</span><span>CONCEPT / 01</span></div>
+            <div class="conversation-graphic">
+              <div class="conversation-line"><span class="avatar human">H</span><span class="message">A conversation is an interface.</span></div>
+              <div class="conversation-line reply"><span class="avatar system">↗</span><span class="message">A contract gives it structure.</span></div>
+            </div>
+            <div class="contract-route"><span>INTERFACE</span><span aria-hidden="true">↔</span><span>CONTRACT</span><span aria-hidden="true">↔</span><span>EVALUATION</span></div>
+          </div>
+          <div class="small-project-body"><div class="project-heading"><h3>Banter</h3><a class="circle-link" href="https://github.com/anthony-mqdt-labs/banter" aria-label="Explore Banter on GitHub">↗</a></div><p>An LLM conversation UI with a Python probe and a Rust spine, kept in sync through shared contracts and diffable evaluations.</p><ul class="tags" aria-label="Technologies"><li>Rust</li><li>Python</li><li>Local-first</li></ul></div>
+        </article>
+        <article class="small-project spark-project">
+          <div class="project-diagram" aria-label="Conceptual diagram of Spark orchestrating three local inference runtimes">
+            <div class="diagram-heading"><span>SPARK</span><span>CONCEPT / 02</span></div>
+            <div class="runtime-graphic"><div class="runtime-core">S<span class="core-dot" aria-hidden="true"></span></div><div class="runtime-branches" aria-hidden="true"><span></span><span></span><span></span></div><div class="runtime-nodes"><span>MLX</span><span>llama.cpp</span><span>Ollama</span></div></div>
+            <div class="runtime-caption"><span class="status-dot" aria-hidden="true"></span> LOCAL RUNTIMES. ONE ORCHESTRATOR.</div>
+          </div>
+          <div class="small-project-body"><div class="project-heading"><h3>Spark</h3><a class="circle-link" href="https://github.com/anthony-mqdt-labs/spark" aria-label="Explore Spark on GitHub">↗</a></div><p>Local LLM runtime orchestration with configuration as data, Keychain-backed secrets, and bounded auto-recovery.</p><ul class="tags" aria-label="Technologies"><li>Python</li><li>MLX</li><li>Orchestration</li></ul></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="statement-section" aria-labelledby="statement-title">
+      <div class="wrap statement-grid"><div class="statement-symbol" aria-hidden="true">✳</div><div><p class="eyebrow">THE WAY I WORK</p><h2 id="statement-title">Think in systems.<br>Obsess over details.<br><span>Ship the thing.</span></h2><p>The best interface is the one people can use without thinking about the complexity behind it. That takes care at every level—from a component’s behavior to the architecture around it.</p></div></div>
+    </section>
+
+    <section class="experience-section wrap" id="experience" aria-labelledby="experience-title">
+      <div class="section-top"><p class="eyebrow">02 / THE TRACK RECORD</p><span class="section-aside">Web. Mobile. The space between.</span></div>
+      <div class="experience-intro"><h2 id="experience-title">Not my<br><span class="muted">first release.</span></h2><div class="experience-summary"><span class="experience-years">8<span>+</span></span><p>years building production applications<br>across fintech, healthcare, advertising, and SaaS.</p></div></div>
+      <div class="experience-list">
+        <details class="experience-item" open><summary><span class="company">Chorus Innovations</span><span class="job-title">Software Engineer</span><span class="job-date">2022—2023</span><span class="expand" aria-hidden="true">+</span></summary><div class="experience-detail"><p>Built reusable React, React Native, and TypeScript interfaces for a healthcare platform in a HIPAA-regulated environment. Documented components in Storybook and tested them with Jest.</p><span class="scope-label">COMPONENTS · CROSS-PLATFORM · TESTING</span></div></details>
+        <details class="experience-item"><summary><span class="company">Aspiration</span><span class="job-title">Frontend Engineer</span><span class="job-date">2020—2022</span><span class="expand" aria-hidden="true">+</span></summary><div class="experience-detail"><p>Owned the frontend of a new credit-card signup funnel from design collaboration through release. Standardized date handling, currency, data-schema modeling, and form validation libraries across the project.</p><span class="scope-label">PRODUCT OWNERSHIP · REACT · GRAPHQL</span></div></details>
+        <details class="experience-item"><summary><span class="company">GOBankingRates</span><span class="job-title">Frontend Engineer</span><span class="job-date">2019—2020</span><span class="expand" aria-hidden="true">+</span></summary><div class="experience-detail"><p>Developed the frontend for an experimental in-house ad-management platform and maintained funnel pages. Worked with React, Redux, Material UI, Cypress, Jest, and React Testing Library.</p><span class="scope-label">ADVERTISING · FRONTEND · TESTING</span></div></details>
+        <details class="experience-item"><summary><span class="company">Emburse</span><span class="job-title">Web Developer</span><span class="job-date">2018</span><span class="expand" aria-hidden="true">+</span></summary><div class="experience-detail"><p>Built invoice and purchase-order wizards for the Invoice team within an enterprise finance platform, using React and Redux.</p><span class="scope-label">ENTERPRISE FINANCE · FORM FLOWS</span></div></details>
+        <details class="experience-item"><summary><span class="company">Poll Everywhere</span><span class="job-title">Software Engineer</span><span class="job-date">2014—2017</span><span class="expand" aria-hidden="true">+</span></summary><div class="experience-detail"><p>Primary developer and maintainer of the cross-application UI component library. Led architecture and deployments, maintained the mobile app through App Store and Google Play releases, and grew the Google Slides Chrome extension to 260K+ downloads.</p><span class="scope-label">LIBRARY OWNERSHIP · MOBILE RELEASES · DESKTOP INTEGRATIONS</span></div></details>
+      </div>
+      <div class="proof-line"><span class="proof-number">260K<span>+</span></span><p>Downloads of the Google Slides Chrome extension<br><span>Poll Everywhere · Historical portfolio figure</span></p><span class="proof-arrow" aria-hidden="true">↗</span></div>
+    </section>
+
+    <section class="contact-section wrap" id="contact" aria-labelledby="contact-title">
+      <div class="section-top"><p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> AVAILABLE FOR FRONTEND OPPORTUNITIES</p><span class="section-aside">San Diego, CA</span></div>
+      <h2 id="contact-title">What’s<br><a href="mailto:critics.trends5v@icloud.com">next<span class="contact-arrow" aria-hidden="true">↗</span><span class="question">?</span></a></h2>
+      <div class="contact-bottom"><p>Bring a difficult problem.<br>Let’s make something people love to use.</p><div class="contact-actions"><a class="primary-link" href="mailto:critics.trends5v@icloud.com">Start a conversation <span aria-hidden="true">↗</span></a><button type="button" class="copy-email" id="copy-email" hidden>Copy email address</button><span class="copy-status" id="copy-status" role="status"></span></div></div>
+    </section>
+  </main>
+  <footer class="site-footer wrap"><a class="footer-name" href="#main">ANTHONY MARQUARDT</a><div><a href="https://github.com/anthony-mqdt-labs">GitHub ↗</a><a href="https://linkedin.com/in/akmarq">LinkedIn ↗</a><a href="inspirations.html">Design studies ↗</a></div><span>ENGINEERED WITH INTENT.</span></footer>
+
+<details class="portfolio-switcher">
+  <summary aria-label="Switch portfolio version" title="Switch portfolio version">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><circle cx="3" cy="9" r="1.5"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="9" r="1.5"/></svg>
+  </summary>
+  <nav aria-label="Portfolio version">
+    <a href="../index.html">Main</a>
+    <a href="../inspiration/frontier.html" aria-current="page">Frontier</a>
+    <a href="../inspiration/inspiration-fieldbook.html">Fieldbook</a>
+  </nav>
+</details>
+</body>
+</html>
