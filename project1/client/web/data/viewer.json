@@ -1,0 +1,961 @@
+{
+  "version": 1,
+  "fetched": [
+    {
+      "path": "client/web/art/loading/journal-hand-sketch-v1.png",
+      "sha256": "53afa6c28496da3dbd63571722ab9fc14653c602991ca8c6f3df739fe96d8dc3"
+    },
+    {
+      "path": "client/web/assets/audio/character/charge.wav",
+      "sha256": "20daa51e7c94ff7703293e590e5b28704a8e88dc9bff0321d4da71880c002306"
+    },
+    {
+      "path": "client/web/scene.html",
+      "sha256": "48fbf7fe02ecf31d53ec9fe114992d884a8cea551355154e49bf7fe66b45be74"
+    },
+    {
+      "path": "client/web/src3d/actor-shadow.js",
+      "sha256": "36218f6a32346a9aab5909f53475dddb379cc033bfb424f62812e6e111a839bc"
+    },
+    {
+      "path": "client/web/src3d/air-cues.js",
+      "sha256": "0959fe8b6960e9230635f9338260108c3616a0911799efdbe32df803a7462f86"
+    },
+    {
+      "path": "client/web/src3d/asset-bytes.js",
+      "sha256": "2408f01f3932177f8e0c161a3b54eacfe26029c2e19ab00e2eea5d98526834d3"
+    },
+    {
+      "path": "client/web/src3d/atmosphere-sky.js",
+      "sha256": "3620dcf8f0871b5b192d2fcdf7f88c68282241183a90f9d15348fd8442768e3f"
+    },
+    {
+      "path": "client/web/src3d/audio.js",
+      "sha256": "051f7e37bde995e3cac069bcda72698fcb1884f417e1c81120cfb2cfd8184330"
+    },
+    {
+      "path": "client/web/src3d/canopy-light.js",
+      "sha256": "90d423b7714ee459efbed9003824f134b0cc76f210f30be19ee30fb8f21e987e"
+    },
+    {
+      "path": "client/web/src3d/character-foley.js",
+      "sha256": "59b623ad0453cc822ceb2aad6b214d383de332ae9801be52850222d3d6d00c79"
+    },
+    {
+      "path": "client/web/src3d/character-surface.js",
+      "sha256": "6f37bef02007c37e451f2a1e88903c569843f3f5934f83a7e7c41207d49daa59"
+    },
+    {
+      "path": "client/web/src3d/character.js",
+      "sha256": "acea8b52c984df99f267025bc52633c887a9383b336b096a3397eb1356fe4ef4"
+    },
+    {
+      "path": "client/web/src3d/cloud-field.js",
+      "sha256": "dbef0c0732b0ed5ef3ffda4ded1be335b59affc0a887dc9b1b1f00245104e674"
+    },
+    {
+      "path": "client/web/src3d/cloud-lighting.js",
+      "sha256": "b684e8905fbe3fe94ce0f23c4e11daf29394a25784ee1717323f5a57f150d008"
+    },
+    {
+      "path": "client/web/src3d/cloud-shadow-field.js",
+      "sha256": "c3fb23cc11f6e96533caf5f9d40bfc56e8bbc492ace6f6be90eb9d9c540bf109"
+    },
+    {
+      "path": "client/web/src3d/cloud-shadows.js",
+      "sha256": "9c99e2a29fe73542c5b285211e1be5b6e781d56814b4b19778d6070b26632d54"
+    },
+    {
+      "path": "client/web/src3d/clouds.js",
+      "sha256": "4a153d983e05731d1e513d3c97b8fd571ea069787b10dcfa713be1fb8ff5ae74"
+    },
+    {
+      "path": "client/web/src3d/collision.js",
+      "sha256": "7341d22669f1e8d0f19b3b0ccdd399087bf241af208790a8b00045caffa4ca96"
+    },
+    {
+      "path": "client/web/src3d/controls.js",
+      "sha256": "8190114c878b056d22f9997932bb54bbffd8d2946a7f2f056c0d0340073f327d"
+    },
+    {
+      "path": "client/web/src3d/details.js",
+      "sha256": "57b488223606c775ff011f829395cbcc402e506da6fa2a7c27a17414f838df2c"
+    },
+    {
+      "path": "client/web/src3d/ecology.js",
+      "sha256": "e9a6f27a8efddab49ff886149a2646847bfd3a3086fa1970c04ca484d572486e"
+    },
+    {
+      "path": "client/web/src3d/first-person-flight.js",
+      "sha256": "9cac7b0dcb608d27bd91ec58a1e9f47948d4c9b074e77dc817ccb7aadba5cc89"
+    },
+    {
+      "path": "client/web/src3d/fixed-air.js",
+      "sha256": "ece1e14de5928a09a4bc60e2b5395bd29f0114f1645d7b901540e5e8e289c835"
+    },
+    {
+      "path": "client/web/src3d/flight-input.js",
+      "sha256": "dade37b84a983cd9a5eb5ed92c3f022cbdf8826551c21346ec9d831f312857e0"
+    },
+    {
+      "path": "client/web/src3d/flight-posture.js",
+      "sha256": "8387fb78e7a439b55f823708c67546387af6e932b18094337d9e2cded294f599"
+    },
+    {
+      "path": "client/web/src3d/flight-quality.js",
+      "sha256": "81ca0057df501f8ac9317ab696803b6339473c0f066a0187fc399b36a6f46a2e"
+    },
+    {
+      "path": "client/web/src3d/flight-rig.js",
+      "sha256": "26c76ff6b4db8b9b8ee67811abd5d42d6f6e52809edc7fab2a5133adabb13a9b"
+    },
+    {
+      "path": "client/web/src3d/folk.js",
+      "sha256": "7f5158326045d0a9588fa588058c0ae50f4d623179ff4082d9c1a10921884f4f"
+    },
+    {
+      "path": "client/web/src3d/follow-camera.js",
+      "sha256": "7733a98f5c54bc0859b6289f718fd11b79269abe88ef1192e5829ced8a071d6b"
+    },
+    {
+      "path": "client/web/src3d/forest-field.js",
+      "sha256": "c04f8714322f8f7c08a24b2e96b9d51604ff91e3e49baefd9a7cfbff05915dee"
+    },
+    {
+      "path": "client/web/src3d/forest-floor.js",
+      "sha256": "d43e32c7de1563fc8c705eb2566a9ebc62995fd055f45c8086e84e4a34d9a91d"
+    },
+    {
+      "path": "client/web/src3d/forest.js",
+      "sha256": "ac9a4a24b09c53feb8c209362f5623361db6898f3ece3c96abb43021040e75a2"
+    },
+    {
+      "path": "client/web/src3d/frame-pacing.js",
+      "sha256": "41d71ef1fa9a78d0064dbac0d39f9abc8ce9cfd137ee2551a251212820909dbf"
+    },
+    {
+      "path": "client/web/src3d/geology.js",
+      "sha256": "6ad3838975d43daefb3fe90b1cc3529ef35d27d42fb29869bf0b4aeba14159f6"
+    },
+    {
+      "path": "client/web/src3d/glb.js",
+      "sha256": "adbac0e16883ea4fa723c33e4b3757038b56588ad1f0c8331d8f37253adbd111"
+    },
+    {
+      "path": "client/web/src3d/gondola.js",
+      "sha256": "9b687585b25f9047337459ac4f969745d993a6e2b6d2a7ab9ebb8342fc3d785d"
+    },
+    {
+      "path": "client/web/src3d/granite-shading.js",
+      "sha256": "41b3462eef240fbebdde264f1d53ac3fa3180f183b4c028b3fab03939815dc5a"
+    },
+    {
+      "path": "client/web/src3d/grass-canopy.js",
+      "sha256": "61cdfedd91782b85d81df06443112cb6b38f585f59f2e2ff708d6267848178b6"
+    },
+    {
+      "path": "client/web/src3d/groundcover.js",
+      "sha256": "455719197ed41f080338fe2f18e917040b3d01874a316f5d9928643a20902826"
+    },
+    {
+      "path": "client/web/src3d/heights.js",
+      "sha256": "82676906a3c4b36afa23a451a3f86ceaecda29344d5d46112a918a51b105bc8d"
+    },
+    {
+      "path": "client/web/src3d/insect-visits.js",
+      "sha256": "4f7055b5037e05996211ebac302adf01ae412c099378a938d0370b4b86b96eb0"
+    },
+    {
+      "path": "client/web/src3d/katana-fx.js",
+      "sha256": "67f88facf59c1ef97a09187e11f4cbec35f4721a4176502025e13ff4b7bf6c28"
+    },
+    {
+      "path": "client/web/src3d/loading.js",
+      "sha256": "6d5e6f07cc61d36492c3b8c8e8673e3d143b30a286f43c4b3fba31fb21f6a4d9"
+    },
+    {
+      "path": "client/web/src3d/main.js",
+      "sha256": "4a58e2e81c4560341bca8993f17f2af8a978a09b8e478d2a1d61f3a6d1a05b83"
+    },
+    {
+      "path": "client/web/src3d/meadow-shading.js",
+      "sha256": "e4e15a7ef1a3c0b3bd2b9f44806596645211c8194d7199dc06df6d3e6a0de483"
+    },
+    {
+      "path": "client/web/src3d/navigation.js",
+      "sha256": "8ec2933c3056375dacbeea7879992c4d89818a205189f6c58793409a3bd07e62"
+    },
+    {
+      "path": "client/web/src3d/para-audio.js",
+      "sha256": "0e2108151191cf8baae242619cbca0d504dbb1fc8c8c3f9716ded7d950d7c0f6"
+    },
+    {
+      "path": "client/web/src3d/para-guide.js",
+      "sha256": "ea564f4d7f82cd4e764fbc0c9413c5f102c8a8a09eece707817401cbe96f64fd"
+    },
+    {
+      "path": "client/web/src3d/para-pass.js",
+      "sha256": "bd9cfd1e0eb3104f9e24671cde66fec0f48b97919fd209ec2dde804ba80fc849"
+    },
+    {
+      "path": "client/web/src3d/para-signals.js",
+      "sha256": "6a9227e25a7b65bfd35e2fe79ffdf1e069cd8a1aaaa47bf5e5146cdcf94cba6d"
+    },
+    {
+      "path": "client/web/src3d/placements.js",
+      "sha256": "59d264e58a78c2f7faa368cecacf63bfa3283dfc6f17daf6ec638d478a59e162"
+    },
+    {
+      "path": "client/web/src3d/player-visibility.js",
+      "sha256": "8f1c90777b334b3991bad22d83f46389ef2905bb0a61658fb5bef54c5b6d8774"
+    },
+    {
+      "path": "client/web/src3d/provenance.js",
+      "sha256": "b1a123f495a66b7966995962913a49b0ec94b2524bab53d0592edffe38e9f9fb"
+    },
+    {
+      "path": "client/web/src3d/redwood-rendering.js",
+      "sha256": "d12492a5c4a227b331ba72b148207e11795a7d7258ca01a8e5d8423ecea19482"
+    },
+    {
+      "path": "client/web/src3d/river-granite.js",
+      "sha256": "1781b70ccaea8bcb247a1e64bc86323416cc4367d0ec9418a2da443625d52dd8"
+    },
+    {
+      "path": "client/web/src3d/rock-lod.js",
+      "sha256": "7110e518b4bbb25836af6d636cd4addababc5e23c00c6d1e6faf3ccb77aee91a"
+    },
+    {
+      "path": "client/web/src3d/style.js",
+      "sha256": "7218d8222febd14db72cc1961643d9358c39e9e8c3c553c1f8fff482525a72d6"
+    },
+    {
+      "path": "client/web/src3d/sun-rays.js",
+      "sha256": "bd5952e984227e3853c66091b3c00932869d735875fb68923dc956cacd3bbb7f"
+    },
+    {
+      "path": "client/web/src3d/terrain-lod.js",
+      "sha256": "2e51d2aaee343a764bcbe114b44906f53f1c5d7f92d7a66b4c520369b0e47e4e"
+    },
+    {
+      "path": "client/web/src3d/terrain.js",
+      "sha256": "4f4c86fc82f610b53493773619c3e7965caec0e420e3b2778196a855a2d8c1d4"
+    },
+    {
+      "path": "client/web/src3d/tree-atlas.js",
+      "sha256": "42b573d868baede5e880cc35e2f150b1ef927b708670b213c737def9d43db514"
+    },
+    {
+      "path": "client/web/src3d/tree-budget.js",
+      "sha256": "fb1f8614df7daefc0068f482ce303b2493600171bdf06251577b4b2aeba6929b"
+    },
+    {
+      "path": "client/web/src3d/tree-cards.js",
+      "sha256": "910a7f3eb55bff33d0237d8220d3ae1ef8ca9e8a2966ce7b8d7ee8293d84f3d1"
+    },
+    {
+      "path": "client/web/src3d/tree-impostors.js",
+      "sha256": "b92db53b71b4fe415e135e0b9c2faf976842d349d6b773497e6a4e302b7c3ae2"
+    },
+    {
+      "path": "client/web/src3d/tree-lighting.js",
+      "sha256": "8ff3869e2d22df2813e3d2c077ca819655aa3c4615a8fc3cc0eef31b57849474"
+    },
+    {
+      "path": "client/web/src3d/tree-material.js",
+      "sha256": "2b9220d133fa697f607edcada8fab80dd407a59122f33f12dd0adc9641035caa"
+    },
+    {
+      "path": "client/web/src3d/tree-shadows.js",
+      "sha256": "58bc3fb92dbcbcc0a83a22510a1950d96bb7ec2a9723f3e8e8ccfdcc3ce0d373"
+    },
+    {
+      "path": "client/web/src3d/tree-surface.js",
+      "sha256": "5108f17dc43ffe3e0c3faba25cd0fd2cfd78de29dd1d95df7f9172050cba7057"
+    },
+    {
+      "path": "client/web/src3d/version.js",
+      "sha256": "916a560c1d43a2e499d969ded193d71137a785668cadcac9f75ac2c2462b465f"
+    },
+    {
+      "path": "client/web/src3d/visibility-feather.js",
+      "sha256": "3457acdef543132535e85b1aa0d275feabe9910f71c55e05c409ff979b8b6f6d"
+    },
+    {
+      "path": "client/web/src3d/world.js",
+      "sha256": "60dcec12303ec6a79c9c63d50a19cd70a24db54c5cecf8d5553280afe6e36e30"
+    },
+    {
+      "path": "client/web/textures/forest-litter-v1.png",
+      "sha256": "8cddfb33413d7725931f8ee536de23a3b55ea619de3a1d7836fef6513e1a9382"
+    },
+    {
+      "path": "client/web/vendor/meshopt_decoder.module.js",
+      "sha256": "784315b6959c85459eab77f51776158cc381d7e7d77b919ff7c4935f088a7c5c"
+    },
+    {
+      "path": "client/web/vendor/three.core.min.js",
+      "sha256": "61ba0df005b05991361d040d8ff670e1aadfd0ce7aeebd1fdb0725957a8957de"
+    },
+    {
+      "path": "client/web/vendor/three.module.min.js",
+      "sha256": "e2b5ee6bccd38fd6d8a2428546b83c5f2426d84b152ef82be8055556e3b40eb6"
+    },
+    {
+      "path": "shared/activities/branches.js",
+      "sha256": "5f67d1500eb31bca38fa3665aa81574572c6a2aafa574b0655d74b05e4e1e569"
+    },
+    {
+      "path": "shared/activities/camera.js",
+      "sha256": "dd4ed7a61509a52026eeff3b1249a723a39559663e341615a102a795ff1299d6"
+    },
+    {
+      "path": "shared/activities/camera.json",
+      "sha256": "f61d9d5029cc3840ed1a941d1418ed672404c667e2f5ea8af2fd6bc597eb8ef9"
+    },
+    {
+      "path": "shared/activities/climb.js",
+      "sha256": "46f2159c88486504f136e58f7a2124d11ff52239255ca3be4f98f238d542249d"
+    },
+    {
+      "path": "shared/activities/colliders.js",
+      "sha256": "374c71dd51d249a7a071c129afb7ebeb4730cd59644f565d33ecaf3c61e46b93"
+    },
+    {
+      "path": "shared/activities/collision.js",
+      "sha256": "222607735a86a1e6791950a632943340efcf9f4ff28a248802b04536b3450a67"
+    },
+    {
+      "path": "shared/activities/coupled-flight.js",
+      "sha256": "2e7818f0d92ea0c68c5dcba22214dbc709b667f772545e456fcda7b21f6656ab"
+    },
+    {
+      "path": "shared/activities/flight.js",
+      "sha256": "543d5783be6b46d46934bcb352d42940f8c168b9ec127621b757131353d7cfd5"
+    },
+    {
+      "path": "shared/activities/flight.json",
+      "sha256": "9df8addf17b3d1bf2b157d9de42062751c4824680b53816a0af1cb5f1215f6b5"
+    },
+    {
+      "path": "shared/activities/forest-spacing.js",
+      "sha256": "224557a65c3b790513da465539cfd59d91aacd498839d1850953881b2a061837"
+    },
+    {
+      "path": "shared/activities/gondola.js",
+      "sha256": "856b8eae02a6e7ba6c46bae110ffeb64a6d0f1b43737e06d4c0457e291ef2921"
+    },
+    {
+      "path": "shared/activities/gondola.json",
+      "sha256": "8c5ab32230f6dcea88908d43de4468cc3d5c8022e853ed0ca58a862a3f4b4be5"
+    },
+    {
+      "path": "shared/activities/moves.js",
+      "sha256": "a5a5e2bd73dca6b488cd3542f312ddd9cc4a19aac4432bdc91ace5ed331ee121"
+    },
+    {
+      "path": "shared/activities/ride.js",
+      "sha256": "37b887c5671de0112598521d2c08c9a070ac36861abf960d647e577fe82bd649"
+    },
+    {
+      "path": "shared/activities/ride.json",
+      "sha256": "84782a0f2f90079aff94014836751ffdae4b6566a26ad194daa371eb4b81975d"
+    },
+    {
+      "path": "shared/activities/river-surface.js",
+      "sha256": "617510b46bc7b6cd1fa9f5fb5007de94ad08914a1adbd5e6bd25c447e0a28bbd"
+    },
+    {
+      "path": "shared/activities/scenic-course.js",
+      "sha256": "6148575ba45af848eec7d985c82d051bdf2f6d0d932dde2f1e3eaf3647ac6827"
+    },
+    {
+      "path": "shared/activities/speedflying.json",
+      "sha256": "7995869c63404bcd8cb77d3c0ed8ada5e710ac3e8151c49788f9c98218b67261"
+    },
+    {
+      "path": "shared/activities/swim.js",
+      "sha256": "68293fd6f968cb8dc78d91ec081d5b21eff3199f907daf57c04b4690847a7b5a"
+    },
+    {
+      "path": "shared/activities/walk.js",
+      "sha256": "bc7464e42c9a7fe46684a6de6ab9224230fc8148011e8a154af26bafefc4bdd9"
+    },
+    {
+      "path": "shared/characters/appearance.js",
+      "sha256": "6df62fac73e6ddecba15cdde0955fff771f9718c0353519a8cad80491a250a32"
+    },
+    {
+      "path": "shared/characters/player.json",
+      "sha256": "1bb1780c0eae5c3b6e9770e95976fe96db77d480fa066e00b8336da751c370c9"
+    },
+    {
+      "path": "shared/ecology/aquatic.js",
+      "sha256": "a8c039e3c15df53f58c6411e43ef917c2616ce360617c78862a73b154e69af75"
+    },
+    {
+      "path": "shared/ecology/habitats.json",
+      "sha256": "201d9196ceec39ec242ef265c4e8495369c295754ba30dc53697e1cf9d2301fa"
+    },
+    {
+      "path": "shared/ecology/meadow.json",
+      "sha256": "c3139bc801ef267688e5ca01541200a6de731768acd74483da10e7eb5cc361c9"
+    },
+    {
+      "path": "shared/geometry/arboreal/skybridge.meshopt.glb",
+      "sha256": "fcc0a11fee437c1d7f09127ed6046664cae048627ebe078c2dfde68c3cd51033"
+    },
+    {
+      "path": "shared/geometry/arboreal/skybridge_20.meshopt.glb",
+      "sha256": "a8622a4e42138352c546cb1204b87dffb0eed9ba01e9e91584b6cfaf28b10992"
+    },
+    {
+      "path": "shared/geometry/arboreal/village_tree.meshopt.glb",
+      "sha256": "3bb12c148b3b7bfd4a85a505b3e2701c5b3d14fd3fb7026b0d4a08e92fc5a9d7"
+    },
+    {
+      "path": "shared/geometry/arboreal/village_tree_high.meshopt.glb",
+      "sha256": "5be0b818ffb0180c8fa33ce2a98332d84cd8edcbf151a306521167e85203d3ba"
+    },
+    {
+      "path": "shared/geometry/arboreal/village_tree_low.meshopt.glb",
+      "sha256": "2f443cb88a5a48bcc0fbd5f14c8cc27d1a8e49ed8d1faea8d25706f1951a6864"
+    },
+    {
+      "path": "shared/geometry/arboreal/village_tree_mid.meshopt.glb",
+      "sha256": "7b4f4c8ec9fd9a50dbc4b594b1c01708026a2a02d6ce855176d2bdb86c3b517e"
+    },
+    {
+      "path": "shared/geometry/blimp/blimp.meshopt.glb",
+      "sha256": "2ff16666ec66b552eb43feb34e0c9bcbe6ac8db9200b1f8a10195cf2bd4e7893"
+    },
+    {
+      "path": "shared/geometry/cat-folk/cinematic/ash.meshopt.glb",
+      "sha256": "fe02247e1a989077b5c01768278dfd2b26ffe625a9fec6fe46d085ec86bf6bf9"
+    },
+    {
+      "path": "shared/geometry/cat-folk/cinematic/juno.meshopt.glb",
+      "sha256": "108e284ddedc2357613ee948a58faeef5a04b470053220096da1345391e2235c"
+    },
+    {
+      "path": "shared/geometry/cat-folk/cinematic/kiri.meshopt.glb",
+      "sha256": "e2a768d887fedf57f175920fe1c26c7be68fae5935315a82607e8c55f990e803"
+    },
+    {
+      "path": "shared/geometry/cat-folk/cinematic/mabel.meshopt.glb",
+      "sha256": "feb695448280cabeb988a78ac8e5a04f26a343c3cee2a1222711cfad53f44770"
+    },
+    {
+      "path": "shared/geometry/cat-folk/cinematic/pip.meshopt.glb",
+      "sha256": "d177c06b41b2ec5719e8ee0ee1648ed9374267c3995cfbb01d27566f38483fca"
+    },
+    {
+      "path": "shared/geometry/cat-folk/cinematic/saffi.meshopt.glb",
+      "sha256": "6aefe71ebf01a2a6cd2f72e028f99978f72ef81e8537abdfdd58c06811f6c8e8"
+    },
+    {
+      "path": "shared/geometry/cat-folk/cinematic/tobu.meshopt.glb",
+      "sha256": "0da37b031248405264fede3f547e56726b160a73f88f58bf53ac05cf153d053b"
+    },
+    {
+      "path": "shared/geometry/cat-folk/cinematic/ume.meshopt.glb",
+      "sha256": "d579bb870306839ca6557cb913f6cdbe62ecb510855645fcf7b2f6303630cca2"
+    },
+    {
+      "path": "shared/geometry/cat-folk/models.json",
+      "sha256": "4d08012bc1ec7ae22f2da6a89e7e6a0ad04c4efc6982bf7c9625db1684c0f0f5"
+    },
+    {
+      "path": "shared/geometry/cat-ronin/ronin.glb",
+      "sha256": "3114d58d052feae9e79f05cf225fdc814cea04a9fb10a86e1adced644c1c3baf"
+    },
+    {
+      "path": "shared/geometry/dome/dome.meshopt.glb",
+      "sha256": "fdb9225f601a6ed02c5ea5cdcb29afb455858ea1eeea491b0f17f6a8e31687db"
+    },
+    {
+      "path": "shared/geometry/first-person/recipe.js",
+      "sha256": "dee82d6cf4e841fec33afaee32996312e4db8bc6a5f419025900b8ac46cfc3c2"
+    },
+    {
+      "path": "shared/geometry/flight/bee.glb",
+      "sha256": "9150e6d80c66f399a367d1ae7d07b2c58ec83c35ea3b48a9c8bd8c3dca707c9e"
+    },
+    {
+      "path": "shared/geometry/flight/butterfly.glb",
+      "sha256": "a4f02c1f08ad5e24bfc42dd4f0568e8891a63a8f3e6e1702be7136de140d5c95"
+    },
+    {
+      "path": "shared/geometry/flight/contacts.js",
+      "sha256": "0baac33ddfcd423b56251744f96c6fd69e99b24edab205fec5cab1fb6556a153"
+    },
+    {
+      "path": "shared/geometry/flight/parafoil.meshopt.glb",
+      "sha256": "c3f39f9720b2282080d5dd15d51106ae0f33068f843c55e9aaa83e25d56bd9e7"
+    },
+    {
+      "path": "shared/geometry/flight/parakite.meshopt.glb",
+      "sha256": "8229d1b5143c8aa0653895b710476fd631e2b5b6f9370032434d71ea7fe4dd74"
+    },
+    {
+      "path": "shared/geometry/flight/paramotor.meshopt.glb",
+      "sha256": "243332b1fdddf05c744bbdca2698a31624580ea256d4c9014e2c316f84af6c24"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-1_4.glb",
+      "sha256": "867eede2ee567b0b5eb4411eb036f77f99e5e5fe042aa781e8f5d1cc6b4f0c42"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-2_3.meshopt.glb",
+      "sha256": "4271b97fa73b085775f6c5e3863a0798c22fc9135dcfa0f31ce00ba22770d1be"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-2_4.meshopt.glb",
+      "sha256": "151e9360f34d919132d0d6bbca83e2b5af567cd8424a0aafc7f98311cc0b80f8"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-4_5.glb",
+      "sha256": "b7108df9385715e22e71c28e08f7e6072eb37d2e08a1dd083b19c91535bf724f"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-5_4.meshopt.glb",
+      "sha256": "2a4e4bbdf070be9cb136d185c82330c2ac5e8bfd002a5fef4318b0e2ca61b400"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-5_5.meshopt.glb",
+      "sha256": "431ba1df108c75cd6f905dc65ab7e051d98992c48f9a91bad3688de9fda1a0fe"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-5_6.meshopt.glb",
+      "sha256": "b9d39a49a11e96af1268b5a508c175e56accc642651b2714d13fb257b4509b94"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-6_5.meshopt.glb",
+      "sha256": "cde3f25a80ffe3bc2920a9394a40944f4e09ff8e232dc5e423202b14e12a0555"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-6_6.meshopt.glb",
+      "sha256": "bb55a3386085dcbcc04f075537aa031eaeb1ee2a6e260e88bb361421a91f4a4c"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-7_5.meshopt.glb",
+      "sha256": "df9eae50c4188f37111fdbf03df995a809c6e50dbc78983f47841054839be726"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_-7_6.glb",
+      "sha256": "02dd66117ee0ca337c044b5f338342f66e23d7b981a017c2eae3caf8cc2c2a68"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_1_2.meshopt.glb",
+      "sha256": "319fc6fb9f29aa0b51e4c1f5e23e7e3dac8222a63b1a5e74abfde5a2cfddec0f"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_1_3.meshopt.glb",
+      "sha256": "e20ad8a33d35eacc49323d383d2214565546f5c18c0ca1fd8bec68c6ed9bed64"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_2_2.glb",
+      "sha256": "27dc4713e4a23ccdf9b3e14df942fea9f4a3b6d95b432c7864ad3221dc7a059f"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_2_3.glb",
+      "sha256": "35c7e36b130877022974ccc5f44ba91cf3cbc8957d6e1e3e202e11cfe568a1f8"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_3_4.meshopt.glb",
+      "sha256": "0b1d443e160218bebe55d0c5491ce0efb6fa435266e85cb4e4a06d614c9760e0"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_3_5.meshopt.glb",
+      "sha256": "a361311ef025591d66424613f4e9e6230d17554abb55a914d1fffe761a8ce4f8"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_3_6.glb",
+      "sha256": "53faeeb99d588b590abe2b17f58120d5852940dcbc2d4ee0d9bf751084c8159a"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_4_4.meshopt.glb",
+      "sha256": "e95c05661b37f56bfe3a76b2d929355e6a5e4404065e706900206ee561d46b24"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_4_5.meshopt.glb",
+      "sha256": "4f2e951087bf291ffc985977765dc0480fed080faa052401f0dc6e96b9e2ebcb"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_4_6.glb",
+      "sha256": "70ac85f727164a6539ee9283dff53445b7a245532f573a7ae20cf81bc35cbc6e"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_5_4.meshopt.glb",
+      "sha256": "dd3c3a160b394097e3d36fdb2e6f63f691b9892575e955425de19cfa2fed055f"
+    },
+    {
+      "path": "shared/geometry/granite/bedrock_5_5.meshopt.glb",
+      "sha256": "2cc741dd53e47ee0e20d91c90c288c5a0cfcf79a7f43b66a0970f94e571181a0"
+    },
+    {
+      "path": "shared/geometry/granite/geology.json",
+      "sha256": "5dee3165ebde65ebe2c527806a9c9d92ade952eb3a8b077de4f985f537c80980"
+    },
+    {
+      "path": "shared/geometry/granite/surface.js",
+      "sha256": "37ca3aaa124a2d1eb5cd67cc1e49a306bdcd81642d20fd62ad017547f59b6c77"
+    },
+    {
+      "path": "shared/geometry/granite/terrain_patch.glb",
+      "sha256": "512c038fdc21c8859d27ac20f0c15a184a2a221ba0f1dfcb108aa1c04ed842ea"
+    },
+    {
+      "path": "shared/geometry/homestead/homestead.meshopt.glb",
+      "sha256": "dc061532288867c1c9154723a5a2ba5e74abf3c892beb14ea365465c5b47edcc"
+    },
+    {
+      "path": "shared/geometry/mooring/hardstanding.meshopt.glb",
+      "sha256": "54b16f9aef9c61997e3fcd48a3cbcc9b875159e227c6b15a904d292826938982"
+    },
+    {
+      "path": "shared/geometry/mooring/mooring_mast.meshopt.glb",
+      "sha256": "6b2436bb6b71622240ebcdb805fd4f23ddd31a6956870f40135d27ba1a9f7728"
+    },
+    {
+      "path": "shared/geometry/redwood/giant_redwood.meshopt.glb",
+      "sha256": "4d09bd4d6b640b9209295d920c0e286dee74e0a94598855bef3f2533109c7d44"
+    },
+    {
+      "path": "shared/geometry/redwood/mountain_pine.meshopt.glb",
+      "sha256": "69c2d2c46ad698fd8d81b41c0455f84965a9826ff629bc0471c9cf3c23b28eb2"
+    },
+    {
+      "path": "shared/geometry/redwood/redwood_canopy.meshopt.glb",
+      "sha256": "ba10b6da1b2befab492bc36b33a8148ffa7b258b79cb29e1cb2539f6c799fd15"
+    },
+    {
+      "path": "shared/geometry/redwood/silver_fir.meshopt.glb",
+      "sha256": "34b90468c0805a5dfe24cd36565a3a47eb218cdfee37b89f29faf4cf9d9a016e"
+    },
+    {
+      "path": "shared/geometry/river-granite/river_granite.glb",
+      "sha256": "310582335be0477ecf6942a53c215b3dd60ca12daa843f5c93dc392b9cb3c18b"
+    },
+    {
+      "path": "shared/geometry/sports/bicycle.meshopt.glb",
+      "sha256": "6916d958f275d5ee16a3e5c3fe8067125d4b76284d90973977fb5d06fc0c58b7"
+    },
+    {
+      "path": "shared/geometry/sports/skier.meshopt.glb",
+      "sha256": "a41f80a94eb2bdb2a920c0bdd7b520bc7048783d0764e5de3b3583f1009a4dd7"
+    },
+    {
+      "path": "shared/geometry/structures/turbine.meshopt.glb",
+      "sha256": "b3816e441dc3e3eab339408af1cf213cd235412b7190c215dca17d06f63ad28c"
+    },
+    {
+      "path": "shared/geometry/tree-design/adopted-redwoods.json",
+      "sha256": "3ef8521996903fe6f9023e6e63f1218b04e53231802806dd3cc9d75ab6f7bc2f"
+    },
+    {
+      "path": "shared/geometry/tree-design/branch-graphs.json",
+      "sha256": "c69e9874138ca0a4ff2c02280299e5da87455ac2643322c5edd62bfe99f45d8a"
+    },
+    {
+      "path": "shared/geometry/tree-design/card-clusters.js",
+      "sha256": "40902fb01c96065c416aa0e8077f70e49509b35a6aaeea4b6baf50e5989e702c"
+    },
+    {
+      "path": "shared/geometry/tree-design/fit-crown.js",
+      "sha256": "571e95b9e411540c3f156412ff4bad485c133b012023f86616f676ce39a0bff1"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-fir-lod0.meshopt.glb",
+      "sha256": "ae071f092d6e6350a2e253abeb995144539cb0da9c2c76736aad238237245259"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-fir-lod1.meshopt.glb",
+      "sha256": "668827f8c5e74d761bd03ac40fc4a32134adee271b5a48acfcdd530f31d62e3a"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-giant-lod0.meshopt.glb",
+      "sha256": "55f8244278720ca01b8e03eb2aa9feba98f1b2b23e722fd99f672633f958f2cb"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-giant-lod1.meshopt.glb",
+      "sha256": "c0b9a739e9743a1f134e93460a83a6c38a1d6dd4ebff2c951c16fea718f85a64"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-palette.js",
+      "sha256": "934f9bafb11b3a65b1a7f30e7762cdada724df20ea5e2e86f4f474b413c79159"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-pine-lod0.meshopt.glb",
+      "sha256": "6c2210aa873c4aeb9afc27253ce773aa9af9f7a759d5b299c85c3dca1c38f26e"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-pine-lod1.meshopt.glb",
+      "sha256": "a42f2e324d4ee5d87cc2f1da9199b8ba5871c333a9153933afdc6975a52de779"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-redwood-lod0.meshopt.glb",
+      "sha256": "3ca3a3b10f9cd6a5cc8ca7848c00f2e0db98de4f0f38cd5b431d9a07627078ae"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-redwood-lod1.meshopt.glb",
+      "sha256": "2b837b77d22dd08278b2ef4dfebf8fd7054aea8026f3aa07f59a88c30c624f4b"
+    },
+    {
+      "path": "shared/geometry/tree-design/forest-sprays.js",
+      "sha256": "bdbdac248f7da603c8664cb1d8e5286817cea8ba085c9c18c4f1fc3932c44ba7"
+    },
+    {
+      "path": "shared/geometry/tree-design/redwood-sprays.js",
+      "sha256": "56a648d1e851d445f635f778d0e320a6bcff11c365f97e6e59c329b6ca249b25"
+    },
+    {
+      "path": "shared/geometry/water/water.meshopt.glb",
+      "sha256": "865aa13690b55e5f51f63dce9560295b6df7490d02cebc4451ca574ef7afda16"
+    },
+    {
+      "path": "shared/geometry/waterside/dragonfly.meshopt.glb",
+      "sha256": "ba1dc9c16520cad504cd3ba26e1eb25dc4aa316bbb654f1f8d664b6d100e104f"
+    },
+    {
+      "path": "shared/geometry/waterside/dragonfly_wings.meshopt.glb",
+      "sha256": "4edc07e2d36b9a29173b39b2e07520729f97157e7019b12460f02484aa6a7bad"
+    },
+    {
+      "path": "shared/geometry/waterside/fish_tail.meshopt.glb",
+      "sha256": "99ad6b38b9347ea854e7a96c2556f2d206fa725399c875e3d27261b9ba8baea3"
+    },
+    {
+      "path": "shared/geometry/waterside/frog.meshopt.glb",
+      "sha256": "a8cbb2c0bdb4234d0bbb433eb1e171c7a7f52009b238591cd87d02df8e6f5e33"
+    },
+    {
+      "path": "shared/geometry/waterside/gravel.meshopt.glb",
+      "sha256": "76fe7fa4d3418936a883e42824e235ec1658667bcd7de1cd1a4fa118a3966ca7"
+    },
+    {
+      "path": "shared/geometry/waterside/lilies.meshopt.glb",
+      "sha256": "0a873a7e433c587546e7800b25690270982fe776f20779624fa98965f5135ffb"
+    },
+    {
+      "path": "shared/geometry/waterside/reeds.meshopt.glb",
+      "sha256": "0491ce8349f67fcefbacfa3a21288487e8485f63aff5735cee8684ecd05687d2"
+    },
+    {
+      "path": "shared/geometry/waterside/river_fish.meshopt.glb",
+      "sha256": "ee9623b4db8fdd56ec6903656f09cf2b1b8cf66f93cf3046244b9595920a75d4"
+    },
+    {
+      "path": "shared/geometry/waterside/river_rock.meshopt.glb",
+      "sha256": "00c45e3b82939c48cd8eae4693b3818fe4b28927dc123265e861d931923455ec"
+    },
+    {
+      "path": "shared/geometry/waterside/sedge.meshopt.glb",
+      "sha256": "32e8dd29f04882adec3d0635d9fdc3a81ce039a13f3ab6431eb3c8d814a53836"
+    },
+    {
+      "path": "shared/npc/folk.js",
+      "sha256": "1453856d1bb1f2e4ad6ff6c96bcbe0a7d16262fc1b0bd486ae0e4a2a5ca21b09"
+    },
+    {
+      "path": "shared/npc/folk.json",
+      "sha256": "090c5fffed096f50643ac0d8a4c6b1bfeb7d0708008af3590c7c6749ea84ac96"
+    },
+    {
+      "path": "shared/world/out/forest_floor.json",
+      "sha256": "702db42d4ed690ad7ff011a2b7d6d3f79e8764bd0d07a8ce22f274f26b98bd41"
+    },
+    {
+      "path": "shared/world/out/ground_cover.json",
+      "sha256": "25bab51bb795647b2b0838cfd68b0b71d5f35f36770ef0a4b082d94dabb1ae80"
+    },
+    {
+      "path": "shared/world/out/landscape_transition.json",
+      "sha256": "daeecec9f068576cc7cdfe040e6a0d80364c6f510fa549c171c43b07e3cf992c"
+    },
+    {
+      "path": "shared/world/out/placement.json",
+      "sha256": "72786e0e30ff88d86b58aedd1210fba089fdc7b4bb233a9fc83b220721b97f50"
+    },
+    {
+      "path": "shared/world/out/river_granite.json",
+      "sha256": "17979660186f091be0afff48fbf5a4a404cef2778edcc7c6bbe08eb887c4adad"
+    },
+    {
+      "path": "shared/world/out/snow_cover.json",
+      "sha256": "aa0f9421684b253b60fce3ebe8c909817a08bb0f83d50900850257f59d858745"
+    },
+    {
+      "path": "shared/world/worldmap.json",
+      "sha256": "9e1122fa647d21d0038d590e51acac01d9c7dfc0160b225a0435b28141917895"
+    },
+    {
+      "path": "client/web/data/heightmap.f32",
+      "sha256": "5b9583fb96df956a22e50e0a05865c871a2e9b4ab9552680b96a0486c3e67616"
+    },
+    {
+      "path": "client/web/data/farfield.f32",
+      "sha256": "75736139ffa50e5b6af85e9e0512ae9cf1108013c9c21e6872ea2a7d4e2c3657"
+    }
+  ],
+  "packed": {
+    "shared/geometry/arboreal/skybridge.glb": "shared/geometry/arboreal/skybridge.meshopt.glb",
+    "shared/geometry/arboreal/skybridge_20.glb": "shared/geometry/arboreal/skybridge_20.meshopt.glb",
+    "shared/geometry/arboreal/village_tree.glb": "shared/geometry/arboreal/village_tree.meshopt.glb",
+    "shared/geometry/arboreal/village_tree_high.glb": "shared/geometry/arboreal/village_tree_high.meshopt.glb",
+    "shared/geometry/arboreal/village_tree_low.glb": "shared/geometry/arboreal/village_tree_low.meshopt.glb",
+    "shared/geometry/arboreal/village_tree_mid.glb": "shared/geometry/arboreal/village_tree_mid.meshopt.glb",
+    "shared/geometry/blimp/blimp.glb": "shared/geometry/blimp/blimp.meshopt.glb",
+    "shared/geometry/cat-folk/cinematic/ash.glb": "shared/geometry/cat-folk/cinematic/ash.meshopt.glb",
+    "shared/geometry/cat-folk/cinematic/juno.glb": "shared/geometry/cat-folk/cinematic/juno.meshopt.glb",
+    "shared/geometry/cat-folk/cinematic/kiri.glb": "shared/geometry/cat-folk/cinematic/kiri.meshopt.glb",
+    "shared/geometry/cat-folk/cinematic/mabel.glb": "shared/geometry/cat-folk/cinematic/mabel.meshopt.glb",
+    "shared/geometry/cat-folk/cinematic/pip.glb": "shared/geometry/cat-folk/cinematic/pip.meshopt.glb",
+    "shared/geometry/cat-folk/cinematic/saffi.glb": "shared/geometry/cat-folk/cinematic/saffi.meshopt.glb",
+    "shared/geometry/cat-folk/cinematic/tobu.glb": "shared/geometry/cat-folk/cinematic/tobu.meshopt.glb",
+    "shared/geometry/cat-folk/cinematic/ume.glb": "shared/geometry/cat-folk/cinematic/ume.meshopt.glb",
+    "shared/geometry/dome/dome.glb": "shared/geometry/dome/dome.meshopt.glb",
+    "shared/geometry/flight/parafoil.glb": "shared/geometry/flight/parafoil.meshopt.glb",
+    "shared/geometry/flight/parakite.glb": "shared/geometry/flight/parakite.meshopt.glb",
+    "shared/geometry/flight/paramotor.glb": "shared/geometry/flight/paramotor.meshopt.glb",
+    "shared/geometry/granite/bedrock_-2_3.glb": "shared/geometry/granite/bedrock_-2_3.meshopt.glb",
+    "shared/geometry/granite/bedrock_-2_4.glb": "shared/geometry/granite/bedrock_-2_4.meshopt.glb",
+    "shared/geometry/granite/bedrock_-5_4.glb": "shared/geometry/granite/bedrock_-5_4.meshopt.glb",
+    "shared/geometry/granite/bedrock_-5_5.glb": "shared/geometry/granite/bedrock_-5_5.meshopt.glb",
+    "shared/geometry/granite/bedrock_-5_6.glb": "shared/geometry/granite/bedrock_-5_6.meshopt.glb",
+    "shared/geometry/granite/bedrock_-6_5.glb": "shared/geometry/granite/bedrock_-6_5.meshopt.glb",
+    "shared/geometry/granite/bedrock_-6_6.glb": "shared/geometry/granite/bedrock_-6_6.meshopt.glb",
+    "shared/geometry/granite/bedrock_-7_5.glb": "shared/geometry/granite/bedrock_-7_5.meshopt.glb",
+    "shared/geometry/granite/bedrock_1_2.glb": "shared/geometry/granite/bedrock_1_2.meshopt.glb",
+    "shared/geometry/granite/bedrock_1_3.glb": "shared/geometry/granite/bedrock_1_3.meshopt.glb",
+    "shared/geometry/granite/bedrock_3_4.glb": "shared/geometry/granite/bedrock_3_4.meshopt.glb",
+    "shared/geometry/granite/bedrock_3_5.glb": "shared/geometry/granite/bedrock_3_5.meshopt.glb",
+    "shared/geometry/granite/bedrock_4_4.glb": "shared/geometry/granite/bedrock_4_4.meshopt.glb",
+    "shared/geometry/granite/bedrock_4_5.glb": "shared/geometry/granite/bedrock_4_5.meshopt.glb",
+    "shared/geometry/granite/bedrock_5_4.glb": "shared/geometry/granite/bedrock_5_4.meshopt.glb",
+    "shared/geometry/granite/bedrock_5_5.glb": "shared/geometry/granite/bedrock_5_5.meshopt.glb",
+    "shared/geometry/homestead/homestead.glb": "shared/geometry/homestead/homestead.meshopt.glb",
+    "shared/geometry/mooring/hardstanding.glb": "shared/geometry/mooring/hardstanding.meshopt.glb",
+    "shared/geometry/mooring/mooring_mast.glb": "shared/geometry/mooring/mooring_mast.meshopt.glb",
+    "shared/geometry/redwood/giant_redwood.glb": "shared/geometry/redwood/giant_redwood.meshopt.glb",
+    "shared/geometry/redwood/mountain_pine.glb": "shared/geometry/redwood/mountain_pine.meshopt.glb",
+    "shared/geometry/redwood/redwood_canopy.glb": "shared/geometry/redwood/redwood_canopy.meshopt.glb",
+    "shared/geometry/redwood/silver_fir.glb": "shared/geometry/redwood/silver_fir.meshopt.glb",
+    "shared/geometry/sports/bicycle.glb": "shared/geometry/sports/bicycle.meshopt.glb",
+    "shared/geometry/sports/skier.glb": "shared/geometry/sports/skier.meshopt.glb",
+    "shared/geometry/structures/turbine.glb": "shared/geometry/structures/turbine.meshopt.glb",
+    "shared/geometry/tree-design/forest-fir-lod0.glb": "shared/geometry/tree-design/forest-fir-lod0.meshopt.glb",
+    "shared/geometry/tree-design/forest-fir-lod1.glb": "shared/geometry/tree-design/forest-fir-lod1.meshopt.glb",
+    "shared/geometry/tree-design/forest-giant-lod0.glb": "shared/geometry/tree-design/forest-giant-lod0.meshopt.glb",
+    "shared/geometry/tree-design/forest-giant-lod1.glb": "shared/geometry/tree-design/forest-giant-lod1.meshopt.glb",
+    "shared/geometry/tree-design/forest-pine-lod0.glb": "shared/geometry/tree-design/forest-pine-lod0.meshopt.glb",
+    "shared/geometry/tree-design/forest-pine-lod1.glb": "shared/geometry/tree-design/forest-pine-lod1.meshopt.glb",
+    "shared/geometry/tree-design/forest-redwood-lod0.glb": "shared/geometry/tree-design/forest-redwood-lod0.meshopt.glb",
+    "shared/geometry/tree-design/forest-redwood-lod1.glb": "shared/geometry/tree-design/forest-redwood-lod1.meshopt.glb",
+    "shared/geometry/water/water.glb": "shared/geometry/water/water.meshopt.glb",
+    "shared/geometry/waterside/dragonfly.glb": "shared/geometry/waterside/dragonfly.meshopt.glb",
+    "shared/geometry/waterside/dragonfly_wings.glb": "shared/geometry/waterside/dragonfly_wings.meshopt.glb",
+    "shared/geometry/waterside/fish_tail.glb": "shared/geometry/waterside/fish_tail.meshopt.glb",
+    "shared/geometry/waterside/frog.glb": "shared/geometry/waterside/frog.meshopt.glb",
+    "shared/geometry/waterside/gravel.glb": "shared/geometry/waterside/gravel.meshopt.glb",
+    "shared/geometry/waterside/lilies.glb": "shared/geometry/waterside/lilies.meshopt.glb",
+    "shared/geometry/waterside/reeds.glb": "shared/geometry/waterside/reeds.meshopt.glb",
+    "shared/geometry/waterside/river_fish.glb": "shared/geometry/waterside/river_fish.meshopt.glb",
+    "shared/geometry/waterside/river_rock.glb": "shared/geometry/waterside/river_rock.meshopt.glb",
+    "shared/geometry/waterside/sedge.glb": "shared/geometry/waterside/sedge.meshopt.glb"
+  },
+  "generator": "client/web/tools/make_viewer_data.py",
+  "commit": "cc8d7ac",
+  "notice": "The browser draws exported core geography and runs the engine-neutral shared flight, ski and bike rules. Fetched source/data/asset hashes identify this local build; commit is only a generation label.",
+  "sources": [
+    {
+      "path": "shared/world/worldmap.json",
+      "sha256_12": "9e1122fa647d"
+    },
+    {
+      "path": "shared/world/out/placement.json",
+      "sha256_12": "72786e0e30ff"
+    },
+    {
+      "path": "shared/world/out/fields_albedo.png",
+      "sha256_12": "c6170cd8901f"
+    },
+    {
+      "path": "shared/world/out/water_mask.png",
+      "sha256_12": "482a8cdf92be"
+    },
+    {
+      "path": "shared/world/out/heightmap.png",
+      "sha256_12": "949611db689c"
+    },
+    {
+      "path": "shared/world/out/farfield_height.png",
+      "sha256_12": "33d83648c52a"
+    },
+    {
+      "path": "shared/geometry/granite/clearances.json",
+      "sha256_12": "705a338e8bd3"
+    }
+  ],
+  "extent": {
+    "min_xy_m": [
+      -2048.0,
+      -2048.0
+    ],
+    "max_xy_m": [
+      2048.0,
+      2048.0
+    ],
+    "quad_size_m": 8.0,
+    "height_resolution": 512
+  },
+  "heights": {
+    "min_m": 11.993591210803386,
+    "max_m": 1438.3154039826047,
+    "encode_min_m": 0.0,
+    "encode_max_m": 1500.0
+  },
+  "partition": {
+    "digest_core": "e9300a9ec3a61de9",
+    "id_agreed": "b8629ccbff0ccb8d",
+    "id_source": "the agreed binary partition identity: IEEE-754 big-endian doubles at fixed widths, an explicit field order, and no text rendering anywhere. Computed here by partition_id_bytes() and in the browser by client/web/src/partition_id.js, from the same specification. This is the one that is stable under how world.json spells a number, which digest_core is not.",
+    "digest_source": "computed by this script calling shared.terrain.field_layout.digest_partition on a FieldAlbedo rebuilt from world.json:fields_status. The browser recomputes it with client/web/src/digest.js and stamps both, so a difference between the two implementations is visible on the picture rather than in a test nobody reads. This is the one place a second client observes the core.",
+    "cells": 0,
+    "edges": 0
+  },
+  "rasters": {
+    "fields_albedo": "shared/world/out/fields_albedo.png",
+    "water_mask": "shared/world/out/water_mask.png",
+    "hillshade": "client/web/data/hillshade.png"
+  },
+  "height_grids": {
+    "block": {
+      "file": "client/web/data/heightmap.f32",
+      "resolution": 512,
+      "quad_size_m": 8.0,
+      "offset_xy_m": [
+        -2044.0,
+        -2044.0
+      ],
+      "min_m": 11.993591210803386,
+      "max_m": 1438.3154039826047,
+      "row_0": "min_y",
+      "source": "shared/world/out/heightmap.png, decoded by shared.terrain.heightmap.load_heightfield"
+    },
+    "far_field": {
+      "file": "client/web/data/farfield.f32",
+      "resolution": 146,
+      "quad_size_m": 56.0,
+      "offset_xy_m": [
+        -4060.0,
+        -4060.0
+      ],
+      "min_m": 0.0,
+      "max_m": 1359.6704051270312,
+      "row_0": "min_y",
+      "source": "shared/world/out/farfield_height.png, decoded by shared.terrain.heightmap.load_far_field"
+    }
+  },
+  "far_field_note": "The far field is vertex-for-vertex with the block at its edge and carries the block's own heights inside it, so a 3D scene can draw it past the edge as a ring and leave the block's own terrain to cover the middle. The ridge ring, the river's valley reaches and the northern skyline stand on it.",
+  "heightmap_note": "heightmap.png is 16-bit grayscale; a browser cannot read its sample values back, which is the only reason hillshade.png and the two .f32 grids exist at all. The 2D viewer never decodes it; the 3D scene reads heightmap.f32 instead."
+}

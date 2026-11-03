@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "id": "cat-ronin",
+  "label": "Cat Ronin",
+  "asset": "cat-ronin/ronin.glb",
+  "scale": 1,
+  "sole_y_m": 0.05524,
+  "forward_axis": "+Z",
+  "flight_attachment": {
+    "bone": "hips",
+    "position_m": [0, 0.65, 0]
+  },
+  "modes": [
+    "walk",
+    "paraglider",
+    "parakite",
+    "paramotor"
+  ],
+  "clips": {
+    "idle": "idle",
+    "walk": "walk",
+    "run": "run",
+    "flight": "harness",
+    "stroll": "stroll"
+  },
+  "walk": {
+    "walk_mps": 3.5,
+    "run_mps": 9,
+    "max_step_m": 0.7,
+    "max_grade": 1.8,
+    "radius_m": 0.35,
+    "stroll_mps": 1.6,
+    "accel_mps2": 16,
+    "decel_mps2": 28,
+    "foliage": {
+      "drag_per_s": 1.5,
+      "knock": 0.15,
+      "slow": 0.7
+    },
+    "swim": {
+      "swim_depth_m": 0.55,
+      "exit_depth_m": 0.4,
+      "paddle_mps": 1.2,
+      "dive_mps": 4,
+      "float_draft_m": 0.8,
+      "rise_mps": 1.5,
+      "flow_mps": 0.5,
+      "floor_clear_m": 0.3
+    },
+    "climb": {
+      "min_radius_m": 0.3,
+      "attach_s": 0.2,
+      "up_mps": 4,
+      "down_mps": 6,
+      "around_mps": 2.5,
+      "fast_factor": 1.5,
+      "hold_m": 0.22,
+      "mount_s": 0.3,
+      "top_clearance_m": 0.9,
+      "jump_out_mps": 6.6,
+      "jump_up_mps": 4.7
+    },
+    "jump": {
+      "gravity_mps2": 38,
+      "takeoff_mps": 13.4,
+      "hop_mps": 13.4,
+      "takeoff_s": 0,
+      "landing_s": 0.18,
+      "air_control_mps2": 14,
+      "max_ground_grade": 1.0,
+      "tumble_mps": 28,
+      "rebound": 0.35,
+      "tumble_s": 0.8,
+      "speed_lift": 0.25,
+      "release_gravity": 3,
+      "apex_mps": 3,
+      "apex_gravity": 0.45,
+      "buffer_s": 0.2,
+      "chain_s": 0.25,
+      "chain_mps": [16.6, 20],
+      "chain_speed_mps": 3
+    },
+    "branches": {
+      "min_radius_m": 0.07,
+      "mount_reach_m": 1.25,
+      "walk_mps": 3.5,
+      "run_mps": 7,
+      "leap_mps": 18,
+      "leap_up_mps": 12,
+      "leap_range_m": 14,
+      "gravity_mps2": 24
+    }
+  },
+  "tail_clips": {
+    "idle": [
+      "tail_relaxed",
+      "tail_curious",
+      "tail_tip_flick",
+      "tail_alert"
+    ],
+    "walk": [
+      "tail_walk_balance",
+      "tail_walk_sweep"
+    ],
+    "stroll": [
+      "tail_walk_sweep",
+      "tail_walk_balance"
+    ],
+    "run": [
+      "tail_run_stream",
+      "tail_run_balance"
+    ],
+    "paraglider": [
+      "tail_glide",
+      "tail_glide_flick"
+    ],
+    "parakite": [
+      "tail_kite",
+      "tail_glide_flick"
+    ],
+    "paramotor": [
+      "tail_motor",
+      "tail_glide_flick"
+    ],
+    "turn_left": [
+      "tail_bank_left"
+    ],
+    "turn_right": [
+      "tail_bank_right"
+    ],
+    "landed": [
+      "tail_settle",
+      "tail_relaxed"
+    ],
+    "jump": [
+      "tail_run_balance"
+    ],
+    "climb": [
+      "tail_climb"
+    ],
+    "swim": [
+      "tail_swim"
+    ]
+  },
+  "blink_clip": "blink",
+  "jump_clips": {
+    "celebrate": "jump_celebrate",
+    "heel_click": "jump_heel_click",
+    "star": "jump_star",
+    "hop": "jump_hop",
+    "leap": "jump_run_leap",
+    "tuck": "jump_run_tuck",
+    "flip": "jump_run_flip",
+    "push": "jump_push_off"
+  },
+  "climb_clips": {
+    "mount": "climb_mount",
+    "up": "climb_up",
+    "down": "climb_down",
+    "around_left": "climb_around_left",
+    "around_right": "climb_around_right",
+    "grip": "climb_grip",
+    "perch": "climb_perch"
+  },
+  "fall_clips": {
+    "bounce": "fall_bounce",
+    "tumble": "fall_tumble"
+  },
+  "swim_clips": {
+    "tread": "swim_tread",
+    "paddle": "swim_paddle",
+    "dive": "swim_dive",
+    "enter": "swim_enter",
+    "exit": "swim_exit"
+  },
+  "landing": {
+    "heavy": "land_heavy",
+    "heavy_mps": 20,
+    "roll": "land_roll",
+    "roll_min_mps": 4
+  },
+  "pivot": {
+    "left": "pivot_left",
+    "right": "pivot_right",
+    "min_rad": 1.2
+  },
+  "idle_sequence": [
+    {
+      "after_s": 7,
+      "clip": "lookaround"
+    },
+    {
+      "after_s": 16,
+      "clip": "present"
+    },
+    {
+      "after_s": 30,
+      "clip": "sit_doze",
+      "hold": true,
+      "eye_pose": {
+        "clip": "blink",
+        "time_s": 0.16666666666666666
+      }
+    }
+  ],
+  "katana": {
+    "holstered": "katana_holstered",
+    "draw": "katana_draw",
+    "drawn": "katana_drawn",
+    "sheathe": "katana_sheathe",
+    "arm_weight": 6,
+    "run": "katana_run",
+    "attacks": [
+      "katana_slash_crescent",
+      "katana_slash_rising",
+      "katana_slash_cleave"
+    ],
+    "attack_weight": 40
+  },
+  "eyepatch": {
+    "worn": "hex",
+    "cuts": [
+      "round",
+      "almond",
+      "shield",
+      "hex"
+    ]
+  }
+}

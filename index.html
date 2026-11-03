@@ -255,8 +255,21 @@ main{display:block;}
   object-fit:contain;
   background:var(--panel);
 }
-/* a plate that carries a video hugs the film's own proportions (2146:1890) */
+.plate-image{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+}
+.plate-visual--link{color:inherit;}
+.plate-visual--link .plate-image{transition:transform 400ms ease;}
+.plate-visual--link:hover .plate-image,.plate-visual--link:focus-visible .plate-image{transform:scale(1.02);}
+@media (prefers-reduced-motion:reduce){
+  .plate-visual--link .plate-image{transition:none;}
+  .plate-visual--link:hover .plate-image,.plate-visual--link:focus-visible .plate-image{transform:none;}
+}
+/* a plate that carries a video hugs the film's own proportions (2146:1890), a still its own (3034:2038) */
 .plate-entry:has(.plate-video) .plate-visual{aspect-ratio:1.135/1;}
+.plate-entry:has(.plate-image) .plate-visual{aspect-ratio:3034/2038;}
 .plate-fig-caption{
   position:relative;z-index:1;
   width:100%;padding:8px 10px;
@@ -390,6 +403,7 @@ main{display:block;}
   .plate-entry{grid-template-columns:1fr;row-gap:16px;padding:28px 0;}
   .plate-visual{aspect-ratio:16/9;}
   .plate-entry:has(.plate-video) .plate-visual{aspect-ratio:1.135/1;}
+  .plate-entry:has(.plate-image) .plate-visual{aspect-ratio:3034/2038;}
   .index-cats{grid-template-columns:1fr 1fr;}
   .colophon-grid{grid-template-columns:1fr;}
   .masthead-meta .mono:last-child{display:none;}
@@ -531,6 +545,13 @@ const CONTENT = {
  ],
  "projects": [
   {
+   "name": "Catagonia",
+   "url": "https://anthonymarquardt.com/project1",
+   "image": "catagonia.png",
+   "note": "You might need a GPU for this or at minimum an Apple M1. This was a test to see what Opus 5.5 could build from a bunch of pictures and videos. It stands as the most fun vessel to \"see what we can do.\" It's not polished enough to present but worth showing as a WIP. Press \"H\" or Escape key for developer panel and menu settings.",
+   "tags": ["WebGL","Three.js","Procedural world","Web client"]
+  },
+  {
    "name": "Banter",
    "url": "https://github.com/anthony-mqdt-labs/banter",
    "note": "An LLM conversation UI with a Python probe and a Rust spine kept in sync by shared contracts and diffable evals.",
@@ -612,20 +633,25 @@ function renderMain() {
     '</div></section>';
 
   /* 03 Projects / Plates */
-  const figNums = ['01', '02', '03'];
+  const figNums = CONTENT.projects.map((p, i) => String(i + 1).padStart(2, '0'));
   const projColors = [
     'radial-gradient(ellipse at 35% 45%, color-mix(in srgb, var(--accent) 38%, var(--panel)) 0%, transparent 60%), var(--panel)',
     'radial-gradient(ellipse at 65% 35%, color-mix(in srgb, var(--accent) 28%, var(--panel)) 0%, transparent 55%), var(--panel)',
     'radial-gradient(ellipse at 50% 60%, color-mix(in srgb, var(--accent) 22%, var(--panel)) 0%, transparent 50%), var(--panel)'
   ];
   const platesHTML = CONTENT.projects.map((p, i) => {
-    const visual = p.video
+    const visual = p.image
+      ? '<a class="plate-visual plate-visual--link" href="' + esc(p.url) + '" aria-label="Open ' + esc(p.name) + '">' +
+          '<img class="plate-image" src="' + esc(p.image) + '" alt="" loading="lazy" decoding="async">' +
+          '<p class="plate-fig-caption mono">Plate ' + figNums[i] + ' &mdash; ' + esc(p.name) + '</p>' +
+        '</a>'
+      : p.video
       ? '<div class="plate-visual" role="img" aria-label="' + esc(p.videoDesc || p.name) + '">' +
           '<video class="plate-video" src="' + esc(p.video) + '" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>' +
           '<p class="plate-fig-caption mono">Plate ' + figNums[i] + ' &mdash; ' + esc(p.videoDesc || p.name) + '</p>' +
         '</div>'
       : '<div class="plate-visual" role="img" aria-label="Generative visual placeholder for ' + esc(p.name) + '">' +
-          '<div class="plate-visual-bg" style="background:' + projColors[i] + '" aria-hidden="true"></div>' +
+          '<div class="plate-visual-bg" style="background:' + projColors[i % projColors.length] + '" aria-hidden="true"></div>' +
           '<p class="plate-fig-caption mono">Plate ' + figNums[i] + ' &mdash; ' + esc(p.name) + ', Forthcoming</p>' +
         '</div>';
     const name = p.url
@@ -634,7 +660,7 @@ function renderMain() {
     return '<article class="plate-entry">' +
       visual +
       '<div class="plate-body">' +
-        '<p class="plate-num" aria-hidden="true">0' + (i + 1) + '</p>' +
+        '<p class="plate-num" aria-hidden="true">' + String(i + 1).padStart(2, '0') + '</p>' +
         '<h3 class="plate-name">' + name + '</h3>' +
         '<p class="plate-note">' + esc(p.note) + '</p>' +
         '<ul class="plate-tags" aria-label="Tags">' +

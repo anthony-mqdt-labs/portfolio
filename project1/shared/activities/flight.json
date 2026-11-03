@@ -1,0 +1,286 @@
+{
+  "version": 3,
+  "units": "metres, seconds",
+  "model": "manual-informed recreational flight; retained dive energy, maneuver recovery, bounded ground drag relief and terrain weather; not training software",
+  "wing_asset": "flight/parafoil.glb",
+  "motor_asset": "flight/paramotor.glb",
+  "wind": {
+    "speed_mps": 4.2,
+    "gust_mps": 1.4
+  },
+  "modes": {
+    "paraglider": {
+      "label": "Paragliding",
+      "trim_mps": 11.5,
+      "sink_mps": 1.1,
+      "turn_rps": 0.85,
+      "powered_climb_mps": 0,
+      "tether_m": 0,
+      "max_bank_rad": 0.75,
+      "brake_fraction": 0.34,
+      "accelerator_fraction": 0.45,
+      "speed_response": 0.58,
+      "polar_drag": 5,
+      "flare_efficiency": 0.72,
+      "span_m": 11.6,
+      "chord_m": 3.2,
+      "canopy_height_m": 5.4,
+      "arc_m": 1.7,
+      "dive_response": 0.9,
+      "maneuver_bank_rad": 1.12,
+      "recovery_response": 0.68,
+      "roll_damping": 3.7,
+      "ground_drag_relief": 0.23
+    },
+    "parakite": {
+      "label": "Parakiting",
+      "trim_mps": 19.5,
+      "sink_mps": 1.9,
+      "turn_rps": 1.15,
+      "powered_climb_mps": 0,
+      "tether_m": 0,
+      "flare_efficiency": 0.84,
+      "wing_asset": "flight/parakite.glb",
+      "max_bank_rad": 1.02,
+      "brake_fraction": 0.43,
+      "accelerator_fraction": 0.48,
+      "speed_response": 0.68,
+      "polar_drag": 7,
+      "span_m": 8.5,
+      "chord_m": 2.5,
+      "canopy_height_m": 5.0,
+      "arc_m": 1.25,
+      "dive_response": 0.95,
+      "maneuver_bank_rad": 1.26,
+      "recovery_response": 0.55,
+      "roll_damping": 3.1,
+      "ground_drag_relief": 0.23
+    },
+    "paramotor": {
+      "label": "Paramotoring",
+      "trim_mps": 13.0,
+      "sink_mps": 1.3,
+      "turn_rps": 0.62,
+      "powered_climb_mps": 5.0,
+      "tether_m": 0,
+      "max_bank_rad": 0.65,
+      "brake_fraction": 0.32,
+      "accelerator_fraction": 0.32,
+      "speed_response": 0.58,
+      "polar_drag": 5,
+      "flare_efficiency": 0.65,
+      "span_m": 11.6,
+      "chord_m": 3.2,
+      "canopy_height_m": 5.4,
+      "arc_m": 1.7,
+      "dive_response": 0.75,
+      "maneuver_bank_rad": 0.88,
+      "recovery_response": 0.75,
+      "roll_damping": 3.7,
+      "ground_drag_relief": 0.23
+    }
+  },
+  "launches": [
+    {
+      "id": "granite-ridge",
+      "label": "Granite Ridge",
+      "xy_m": [
+        -380,
+        1620
+      ],
+      "heading_deg": 270
+    },
+    {
+      "id": "east-bowl",
+      "label": "East Bowl",
+      "xy_m": [
+        1080,
+        1360
+      ],
+      "heading_deg": 250
+    },
+    {
+      "id": "trail-t5",
+      "label": "T5 \u00b7 trail descent",
+      "xy_m": [
+        -420,
+        1560
+      ],
+      "heading_deg": 225,
+      "clearance_m": 32
+    },
+    {
+      "id": "gondola-high-ridge",
+      "label": "Gondola Weave \u00b7 high ridge",
+      "xy_m": [
+        -540,
+        1720
+      ],
+      "heading_deg": 0,
+      "clearance_m": 45,
+      "terrain_protection": false
+    },
+    {
+      "id": "gondola-midline",
+      "label": "Gondola \u00b7 middle shoulder",
+      "xy_m": [
+        -457.5,
+        1200
+      ],
+      "heading_deg": 270,
+      "clearance_m": 100,
+      "terrain_protection": false
+    },
+    {
+      "id": "cirque-lip",
+      "label": "Granite Cirque \u00b7 lip",
+      "xy_m": [
+        192,
+        1441
+      ],
+      "heading_deg": 250,
+      "clearance_m": 55,
+      "terrain_protection": false
+    },
+    {
+      "id": "granite-riverbank",
+      "label": "Granite River \u00b7 south bank",
+      "xy_m": [
+        3150,
+        -1100
+      ],
+      "heading_deg": 90,
+      "clearance_m": 35,
+      "terrain_protection": false
+    }
+  ],
+  "thermals": [
+    {
+      "xy_m": [
+        -650,
+        900
+      ],
+      "radius_m": 180,
+      "lift_mps": 4.2,
+      "top_m": 1400
+    },
+    {
+      "xy_m": [
+        500,
+        900
+      ],
+      "radius_m": 210,
+      "lift_mps": 4.8,
+      "top_m": 1500
+    },
+    {
+      "xy_m": [
+        -1400,
+        1400
+      ],
+      "radius_m": 170,
+      "lift_mps": 3.8,
+      "top_m": 1450
+    }
+  ],
+  "landing_clearance_m": 1.8,
+  "ceiling_m": 2200,
+  "world_limit_m": 3950,
+  "launch_radius_m": 20.0,
+  "launch_clearance_m": 90.0,
+  "collapse": {
+    "terminal_mps": 15,
+    "restitution": 0.2,
+    "knock": 0.15,
+    "foliage_drag_per_s": 1.5,
+    "body_impact_collapse_mps": 6.5,
+    "recoverable_tip_fraction": 0.22,
+    "recoverable_foliage_fraction": 0.18,
+    "tip_brush_roll_rps": 0.12,
+    "tip_brush_pressure": 0.08,
+    "bounce_threshold_mps": 11,
+    "bounce_rebound": 0.35
+  },
+  "weather": {
+    "calm": {
+      "label": "Calm air",
+      "wind_scale": 0.45,
+      "gust_scale": 0.12,
+      "thermal_scale": 0.15,
+      "turbulence_mps": 0.08
+    },
+    "soaring": {
+      "label": "Thermal day",
+      "wind_scale": 1,
+      "gust_scale": 0.65,
+      "thermal_scale": 1,
+      "turbulence_mps": 0.5
+    },
+    "alpine": {
+      "label": "Alpine gusts",
+      "wind_scale": 1.65,
+      "gust_scale": 1.7,
+      "thermal_scale": 0.65,
+      "turbulence_mps": 1.8
+    }
+  },
+  "suspension": {
+    "damping_ratio": 0.85,
+    "pitch_limit_rad": 0.5,
+    "roll_limit_rad": 0.35,
+    "roll_follow": 0.25,
+    "roll_rate_gain_s": 0.12
+  },
+  "coupled": {
+    "pilot_mass_kg": 84,
+    "wing_mass_kg": 6,
+    "harness_height_m": 0.65,
+    "area_fraction": 0.65,
+    "pilot_drag_area_m2": 0.12,
+    "side_force_slope": 0.08,
+    "induced_share": 0.55,
+    "trim_alpha_rad": 0.12,
+    "lift_slope": 4.5,
+    "stall_alpha_rad": 0.32,
+    "max_cl": 1.8,
+    "max_step_s": 0.004166666666666667,
+    "pitch_gain": 100,
+    "pitch_damping": 16,
+    "max_roll_rate_rps": 0.65,
+    "deep_brake_alpha_rad": 0.22
+  },
+  "propulsion": {
+    "mass_kg": 90,
+    "max_thrust_n": 260,
+    "max_power_w": 6000,
+    "airspeed_share": 0.15
+  },
+  "ground_launch": {
+    "inflate_s": 1.2,
+    "run_accel_mps2": 3.5,
+    "takeoff_speed_fraction": 0.95,
+    "hop_mps": 2.4,
+    "dropoff_m": 0.5,
+    "max_run_m": 60,
+    "max_run_s": 12,
+    "max_run_mps": 9
+  },
+  "landing": {
+    "smooth_mps": 1.5,
+    "hard_mps": 4
+  },
+  "challenges": {
+    "smooth-landing": {
+      "label": "Smooth landing",
+      "goal": "landing",
+      "max_descent_mps": 1.5,
+      "max_ground_mps": 10
+    },
+    "linked-turns": {
+      "label": "Link three turns",
+      "goal": "linked_turns",
+      "bank_rad": 0.45,
+      "reversals": 2
+    }
+  }
+}
