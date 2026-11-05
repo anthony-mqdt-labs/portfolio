@@ -6,7 +6,7 @@ import * as T from '../vendor/three.module.min.js';
 import { instanceMatrix } from './world.js';
 import { mergePrimitives } from './glb.js';
 import { toonMaterial,style,sunShadowShader } from './style.js';
-import { treeShadowUniforms,SHADOW_EDGE_FADE } from './tree-shadows.js';
+import { treeShadowUniforms,TREE_SHADOW_GLSL } from './tree-shadows.js';
 
 export function stylizedTreeGeometry(asset) {
   const foliage = asset.primitives.filter(p => /foliage/.test(p.materialName));
@@ -148,7 +148,7 @@ function bakeImpostor(asset,renderer){
 /** Vertex clustering keeps the source's branches, gaps and material colours in
  * the middle distance. The cell size grows only until the per-species budget is
  * met; a broad crown hull is reserved for invisible shadow proxies. */
-export function clusteredTreeGeometry(source, maxTriangles=8000, {minCell=.25}={}) {
+export function clusteredTreeGeometry(source, maxTriangles=8000, {minCell=.25,lockBelow=-Infinity}={}) {
   const position=source.attributes.position,normal=source.attributes.normal,color=source.attributes.color;
   const height=source.boundingBox.max.y-source.boundingBox.min.y;
   let cell=Math.max(minCell,height*.008),result;
@@ -158,7 +158,7 @@ export function clusteredTreeGeometry(source, maxTriangles=8000, {minCell=.25}={
       const x=position.getX(i),y=position.getY(i),z=position.getZ(i);
       // Bark and foliage cannot collapse into one another at a branch joint.
       const leafy=color.getY(i)>color.getX(i)*1.1;
-      const key=`${Math.floor(x/cell)},${Math.floor(y/cell)},${Math.floor(z/cell)},${+leafy}`;
+      const key=y<=lockBelow?`root:${x},${y},${z}`:`${Math.floor(x/cell)},${Math.floor(y/cell)},${Math.floor(z/cell)},${+leafy}`;
       let v=clusters.get(key);
       if(v===undefined){v=vertices.length;clusters.set(key,v);vertices.push({p:[0,0,0],n:[0,0,0],c:[0,0,0,0],count:0});}
       remap[i]=v;const entry=vertices[v];entry.count++;
@@ -339,19 +339,18 @@ export function buildTreeGroundShadows(placement, assets, ground) {
   material.onBeforeCompile=shader=>{
     Object.assign(shader.uniforms,treeShadowUniforms());
     shader.vertexShader='varying vec3 vDecalWorld;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvDecalWorld=position;');
-    shader.fragmentShader='uniform mat4 uTreeSunMatrix;uniform float uTreeSunReady;varying vec3 vDecalWorld;\n'+shader.fragmentShader.replace('#include <alphatest_fragment>',`#include <alphatest_fragment>
+    shader.fragmentShader=TREE_SHADOW_GLSL+'varying vec3 vDecalWorld;\n'+shader.fragmentShader.replace('#include <alphatest_fragment>',`#include <alphatest_fragment>
       float radius=length(vUv*2.-1.);
       diffuseColor.a*=1.-smoothstep(.22,1.,radius);
       // Inside the live sun map the real shadow takes over, cross-fading
       // across the same rim the map's lookup fades in over.
       vec4 sunUv=uTreeSunMatrix*vec4(vDecalWorld,1.);sunUv.xy/=sunUv.w;
-      vec2 sunRim=min(sunUv.xy,1.-sunUv.xy);
-      diffuseColor.a*=1.-uTreeSunReady*smoothstep(0.,${SHADOW_EDGE_FADE.toFixed(3)},min(sunRim.x,sunRim.y));
+      diffuseColor.a*=1.-uTreeSunReady*sceneryShadowCoverage(sunUv.xy);
       if(diffuseColor.a<.003)discard;
     `);
   };
   // Basic materials otherwise omit UVs when no texture is bound.
-  material.defines={USE_UV:''};material.customProgramCacheKey=()=> 'tree-ground-shadow-v2';
+  material.defines={USE_UV:''};material.customProgramCacheKey=()=> 'tree-ground-shadow-v3';
   const stats={trees:trees.length,patches:0,triangles:0,tiles:0,revision:0,contactFallbacks:0};let direction=null;
   function setSun(sun){
     if(direction&&direction.distanceToSquared(sun)<1e-10)return false;

@@ -20,7 +20,7 @@ import { buildPlacements, buildForest } from './placements.js';
 import { buildTreeGroundShadows } from './forest.js';
 import {instanceMatrix} from './world.js';
 import {setTreeLighting} from './tree-surface.js';
-import {bindTreeSunShadow} from './tree-shadows.js';
+import {bindTreeSunShadow,setTreeShadowFocus,SCENERY_SHADOW_SPAN,SCENERY_SHADOW_RESOLUTION} from './tree-shadows.js';
 import {buildForestField,forestField} from './forest-field.js';
 import {buildForestFloor} from './forest-floor.js';
 import {buildAdoptedRedwoods,releaseCrownSources} from './redwood-rendering.js';
@@ -277,7 +277,7 @@ export async function main() {
   // Full/half Cat Ronin (button, C, or ?cat=half): presentation and camera only;
   // speeds, jumps and collision stay full size. A start for a shrink/grow mechanic.
   const catSize=document.getElementById('cat-size'),HALF_CAT=.52;
-  const toggleCatSize=()=>{characterConfig.scale=characterConfig.scale===1?HALF_CAT:1;const half=characterConfig.scale!==1;catSize.textContent=half?'Cat: half size':'Cat: full size';catSize.setAttribute('aria-pressed',String(half));};
+  const toggleCatSize=()=>{characterConfig.scale=characterConfig.scale===1?HALF_CAT:1;character.setScale(characterConfig.scale);const half=characterConfig.scale!==1;catSize.textContent=half?'Cat: half size':'Cat: full size';catSize.setAttribute('aria-pressed',String(half));};
   catSize.addEventListener('click',toggleCatSize);
   window.addEventListener('keydown',e=>{if(e.code==='KeyC'&&!e.repeat&&!e.metaKey&&!e.ctrlKey&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))toggleCatSize();});
   if(new URLSearchParams(location.search).get('cat')==='half')toggleCatSize();
@@ -335,12 +335,14 @@ export async function main() {
   const rideModes=Object.keys(rideConfig.modes);
   let scenicCourse=null,scenicProgress=null;
   const paraGuide=createParaGuide(document.getElementById('para-guide'),camera);
+  const courseRetry=document.getElementById('course-retry');
+  courseRetry.addEventListener('click',()=>{if(scenicCourse&&flightConfig.modes[navigation.mode])setActivity(navigation.mode);});
   function showStarts(mode){
     const list=rideModes.includes(mode)?rideConfig.starts.filter(s=>s.mode===mode).map(s=>[s.id,s.label]):flightConfig.launches.map((l,i)=>[String(i),l.label]);
     const key=list.map(([id])=>id).join();if(siteSelect.dataset.key===key)return;
     siteSelect.replaceChildren(...list.map(([id,label])=>new Option(label,id)));siteSelect.dataset.key=key;
   }
-  const helps={orbit:'Drag to orbit · Right-drag to pan · Wheel to approach',walk:'WASD / stick: walk · Shift / L3: run · Space / A: jump or moving skip · F / Y: katana · Click / Q / B: strike (again to chain) · E / X: reharness · Drag / right stick: look',
+  const helps={orbit:'Drag to orbit · Right-drag to pan · Wheel to approach',walk:'WASD / stick: walk · Shift / L3: run · Space / A: jump or wall push · F / Y: katana · Click / Q / B: slash · Hold R / RT: charge, release to cleave · Ctrl / R3: slide · E / X: grab tree / reharness · Drag / right stick: look',
     parakite:'A/D steer · W dive / S flare · Drag to look · Launch to restart',
     ski:'A/D carve · W pole · S snowplough · Shift tuck · Space hop · V view · Pad: stick, RT/LT, A hop, B tuck, Y view',
     bike:'A/D steer · W pedal · S brake · Shift crouch · Space hop · V view · Pad: stick, RT/LT, A hop, B crouch, Y view'};
@@ -402,8 +404,8 @@ export async function main() {
 
   const sun = new T.DirectionalLight('#ffe3a3', 2.1);
   sun.castShadow = true;
-  Object.assign(sun.shadow.camera, { left: -260, right: 260, top: 260, bottom: -260, near: 1, far: 1800 });
-  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -SCENERY_SHADOW_SPAN/2, right: SCENERY_SHADOW_SPAN/2, top: SCENERY_SHADOW_SPAN/2, bottom: -SCENERY_SHADOW_SPAN/2, near: 1, far: 1800 });
+  sun.shadow.mapSize.set(SCENERY_SHADOW_RESOLUTION, SCENERY_SHADOW_RESOLUTION);
   sun.shadow.bias = -.00015; sun.shadow.normalBias = .7;
   scene.add(sun, sun.target);bindTreeSunShadow(sun);
   const hemisphere = new T.HemisphereLight('#afd7e3', '#7a8452', 2.0); scene.add(hemisphere);
@@ -414,13 +416,14 @@ export async function main() {
   const shadowFocus=new T.Vector3(Infinity,Infinity,Infinity);
   function updateShadow(force = false) {
     const target = controls.target;
+    setTreeShadowFocus(target);
     const now=performance.now();
-    if (!force && target.distanceToSquared(shadowCentre)<80*80 &&
+    if (!force && target.distanceToSquared(shadowCentre)<40*40 &&
       ((shadowRevision===forest.stats.shadowRevision&&target.distanceToSquared(shadowFocus)<4*4)||now-lastShadowTime<350))return;
     lastShadowTime=now;shadowFocus.copy(target);
     // Static world shadows retain their light-space texel phase on recenter.
     // A forty-metre world-axis step changes that phase and makes edges jump.
-    shadowCentre.copy(snappedShadowAnchor(target,style.sun.value,520,2048));
+    shadowCentre.copy(snappedShadowAnchor(target,style.sun.value,SCENERY_SHADOW_SPAN,SCENERY_SHADOW_RESOLUTION));
     forest.update(camera,shadowCentre);shadowRevision=forest.stats.shadowRevision;
     sun.target.position.copy(shadowCentre);
     sun.position.copy(shadowCentre).addScaledVector(style.sun.value, 900);
@@ -616,7 +619,7 @@ export async function main() {
         ((flight.landingRunM??0)>.5?` · ${Math.round(flight.landingRunM)} m run`:''):'Landed';
       readout.textContent=rider?(rider.crashed?`Contact: ${rider.crashed} · Launch to go again`:
         `${rideConfig.modes[rider.mode].label} · ${(riderSpeed*3.6).toFixed(0)} km/h · ${Math.round(rider.startZ-rider.z)} m down · ${(rider.distance/1000).toFixed(2)} km · ${rider.grounded?rider.surface:'airborne'}`):
-        !airborne?(navigation.mode==='walk'?(navigation.message||(flight.mode==='climb'?(flight.launchReady?'Crown perch · E / X: launch para':'Climbing · E / X: step onto a nearby branch · Space / A: jump off'):flight.mode==='branch'?'On branch · move along limb · Space / A: leap toward another tree · E / X near trunk: climb':flight.mode==='tree-jump'?'Leaping to branch':null)||`On foot · V / R3: ${navigation.view==='first'?'chase view':'first person'} · Space / A: ${flight.jumpPhase==='airborne'?flight.jumpStyle.replace('_',' '):'jump'}${flight.harnessMode?' · E / X: reharness':''}`):''):
+        !airborne?(navigation.mode==='walk'?(navigation.message||(flight.mode==='climb'?(flight.launchReady?'Crown perch · E / X: launch para':'Climbing · E / X: step onto a nearby branch · Space / A: jump off'):flight.mode==='branch'?'On branch · move along limb · Space / A: leap toward another tree · E / X near trunk: climb':flight.mode==='tree-jump'?'Leaping to branch':null)||`On foot · V: ${navigation.view==='first'?'chase view':'first person'} · Space / A: ${flight.jumpPhase==='airborne'?flight.jumpStyle.replace('_',' '):'jump'}${flight.harnessMode?' · E / X: reharness':''}`):''):
         flight.launching?`${flight.launchStage==='running'?'Running for takeoff':'Inflating the wing'} · ${Math.round((flight.launchProgress??0)*100)}%\n${(flight.speed*3.6).toFixed(0)} km/h · E / X: cancel and unhook`:
         flight.grounded?`${flight.launchAborted?flight.figure:touchdown}${flight.impact?` · Contact with ${flight.impact}`:''}\n${navigation.message||'E / X: unhook · Space / A: launch here'}`:
         `${flightConfig.modes[flight.mode].label}  /  ${flightConfig.weather[navigation.weather].label}\n`+
@@ -640,11 +643,14 @@ export async function main() {
         const bearing=next?Math.atan2(next.position_m[1]-flight.y,next.position_m[0]-flight.x)-flight.heading:0;
         const delta=Math.atan2(Math.sin(bearing),Math.cos(bearing));
         const arrow=Math.abs(delta)<.2?'↑':delta>0?'↖':'↗';
-        readout.textContent+=`\n${scenicCourse.label} · ${next?`${arrow} ${next.label} · ${distance} m`:'Valley reached · keep exploring'}`;
+        const arrivalLabel={exit:'Valley exit · continue to the meadow',approach:scenicCourse.arrival?.label,landed:'Landed · fly again',retry:'Run ended · fly again'}[scenicProgress.phase];
+        readout.textContent+=`\n${scenicCourse.label} · ${arrivalLabel??(next?`${arrow} ${next.label} · ${distance} m`:'Valley reached · keep exploring')}`;
       }
       paraGuide.update(airborne?scenicCourse:null,scenicProgress,flight,document.getElementById('course-guide').checked);
       document.body.dataset.flying=String(airborne);document.body.dataset.pilotView=navigation.view;
     }
+    courseRetry.hidden=!(airborne&&scenicCourse&&['landed','retry'].includes(scenicProgress?.phase)&&document.getElementById('course-guide').checked);
+    if(!courseRetry.hidden)courseRetry.textContent=`Fly ${scenicCourse.label} again ↗`;
     const localWind=air??navigation.sampleEnvironment(camera.position.x,-camera.position.z,camera.position.y);
     style.wind.value.set(localWind.wx/Math.max(1,flightConfig.wind.speed_mps),-localWind.wy/Math.max(1,flightConfig.wind.speed_mps));
     // Slow, bounded render-scale adaptation. Preserve the user's chosen ceiling.
