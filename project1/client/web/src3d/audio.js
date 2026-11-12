@@ -4,8 +4,33 @@ import {createFoleyPlayer} from './character-foley.js';
 /** Browser presentation of the existing habitats, wind and flight motor.
  * Original procedural sound, enabled by default and resumed after the first user gesture if autoplay is blocked.
  */
-export function createSoundscape(habitats,trees=new Float32Array(0),chargeBytes=null){
+export function createSoundscape(habitats,trees=new Float32Array(0),chargeBytes=null,dialogueBytes=null){
   let context=null,birds=null,beeVoices=[],water=null,motor=null,wind=null,vario=null,cues=null,characterBus=null,paraVoice=null,windWaterBus=null,windWaterEnabled=true,enabled=true;
+  let dialogueBuffer=null, dialogueSource=null, dialogueActive=false;
+  function stopDialogue(){
+    if(!dialogueSource)return;
+    const source=dialogueSource;dialogueSource=null;
+    source.stop();source.disconnect();
+  }
+  function playDialogue(offset,duration){
+    stopDialogue();
+    if(!enabled||context?.state!=='running'||!dialogueBuffer||duration<=0)return false;
+    const source=context.createBufferSource(), level=context.createGain();
+    source.buffer=dialogueBuffer;level.gain.value=.88;
+    source.connect(level).connect(context.destination);
+    source.onended=()=>{
+      source.disconnect();level.disconnect();
+      if(dialogueSource===source)dialogueSource=null;
+    };
+    dialogueSource=source;
+    source.start(0,offset,duration);
+    return true;
+  }
+  function setDialogueActive(active){
+    dialogueActive=!!active;
+    if(!active)stopDialogue();
+    setWindWaterEnabled(windWaterEnabled);
+  }
   async function toggle(next=!enabled){
     enabled=next;
     if(!context){
@@ -13,26 +38,27 @@ export function createSoundscape(habitats,trees=new Float32Array(0),chargeBytes=
       let chargeBuffer=null;
       try{if(chargeBytes)chargeBuffer=await context.decodeAudioData(chargeBytes.slice(0));}
       catch(error){const failed=context;context=null;await failed.close();throw error;}
+      if(dialogueBytes)context.decodeAudioData(dialogueBytes.slice(0)).then(buffer=>{dialogueBuffer=buffer;}).catch(()=>{});
       const length=context.sampleRate*3;
       const buffer=context.createBuffer(1,length,context.sampleRate),data=buffer.getChannelData(0);
       let last=0;for(let i=0;i<length;i++){last=(last+(Math.random()*2-1)*.02)/1.02;data[i]=last*3.5;}
       characterBus=context.createPanner();characterBus.panningModel='HRTF';characterBus.distanceModel='inverse';characterBus.refDistance=5;characterBus.rolloffFactor=1;characterBus.maxDistance=100;characterBus.connect(context.destination);
       cues=createCuePlayer(context,characterBus,chargeBuffer);birds=createBirds(context,createTreeIndex(trees));beeVoices=Array.from({length:3},()=>createBeeVoice(context));
-      windWaterBus=context.createGain();windWaterBus.gain.value=windWaterEnabled?1:0;windWaterBus.connect(context.destination);
+      windWaterBus=context.createGain();windWaterBus.gain.value=windWaterEnabled?(dialogueActive?.24:1):0;windWaterBus.connect(context.destination);
       function noise(frequency,gain,spatial=false){const source=context.createBufferSource();source.buffer=buffer;source.loop=true;
         const filter=context.createBiquadFilter();filter.type='lowpass';filter.frequency.value=frequency;
         const level=context.createGain();level.gain.value=gain;source.connect(filter).connect(level);
         let panner=null;if(spatial){panner=context.createPanner();panner.panningModel='HRTF';panner.distanceModel='inverse';panner.refDistance=10;panner.maxDistance=260;level.connect(panner).connect(windWaterBus);}else level.connect(windWaterBus);
         source.start();return {source,filter,level,panner};}
       const tone=context.createOscillator(),toneLevel=context.createGain();tone.type='sine';tone.frequency.value=700;toneLevel.gain.value=0;tone.connect(toneLevel).connect(context.destination);tone.start();vario={tone,level:toneLevel};
-      wind=noise(550,.08);water=noise(1400,.3,true);paraVoice=createParaVoice(context);
+      wind=noise(550,.08);water=noise(1400,.3,true);paraVoice=createParaVoice(context,context.destination,windWaterBus);
       const oscillator=context.createOscillator();oscillator.type='sawtooth';oscillator.frequency.value=85;const level=context.createGain();level.gain.value=0;const filter=context.createBiquadFilter();filter.type='lowpass';filter.frequency.value=350;oscillator.connect(filter).connect(level).connect(context.destination);oscillator.start();motor={oscillator,level};
     }
     await (enabled?context.resume():context.suspend());return enabled;
   }
   function setWindWaterEnabled(value){
     windWaterEnabled=!!value;
-    if(windWaterBus){const t=context.currentTime;windWaterBus.gain.cancelScheduledValues(t);windWaterBus.gain.setTargetAtTime(windWaterEnabled?1:0,t,.03);}
+    if(windWaterBus){const t=context.currentTime;windWaterBus.gain.cancelScheduledValues(t);windWaterBus.gain.setTargetAtTime(windWaterEnabled?(dialogueActive?.24:1):0,t,.03);}
   }
   async function unlock(){if(enabled&&context?.state==='suspended')await context.resume();}
   function update(camera,navigation,nearby,presentation=null){
@@ -53,7 +79,10 @@ export function createSoundscape(habitats,trees=new Float32Array(0),chargeBytes=
     vario.level.gain.setTargetAtTime(pulse?.014:climb<-3?.008:0,t,.025);
     let passPan=0;
     if(presentation?.feature){const p=presentation.feature.point,e=camera.matrixWorld.elements,dx=p[0]-position.x,dy=p[2]-position.y,dz=-p[1]-position.z;passPan=(dx*e[0]+dy*e[1]+dz*e[2])/Math.max(1,Math.hypot(dx,dy,dz));}
-    paraVoice.update(presentation,t,passPan);
+    // Which ear faces the relative wind, and how much the head faces into it.
+    let windPan=0,facing=1;
+    if(presentation?.active){const v=presentation.velocity,e=camera.matrixWorld.elements,vx=v[0],vy=v[2],vz=-v[1],n=Math.max(1,Math.hypot(vx,vy,vz));windPan=(vx*e[0]+vy*e[1]+vz*e[2])/n;facing=Math.max(0,-(vx*e[8]+vy*e[9]+vz*e[10])/n);}
+    paraVoice.update(presentation,t,passPan,{view:navigation.view,windPan,facing});
     const throttle=navigation.mode==='paramotor'&&!navigation.state?.grounded?(navigation.state.engine??navigation.state.throttle):0;
     // Up to three of the closest bumblebees, each its own HRTF-placed voice; the rest of the meadow is silent.
     const bees=nearby?nearby('bee',26,beeVoices.length):[];
@@ -66,7 +95,7 @@ export function createSoundscape(habitats,trees=new Float32Array(0),chargeBytes=
     });
     motor.level.gain.setTargetAtTime(throttle*.032,t,.1);motor.oscillator.frequency.setTargetAtTime(65+throttle*65,t,.1);
   }
-  return {toggle,unlock,update,setWindWaterEnabled,get windWaterEnabled(){return windWaterEnabled;},cue:name=>{if(enabled&&context?.state==='running')cues?.(name);},get paraTargets(){return paraVoice?.targets;},dispose(){paraVoice?.dispose();context?.close();}};
+  return {toggle,unlock,update,setWindWaterEnabled,playDialogue,stopDialogue,setDialogueActive,get windWaterEnabled(){return windWaterEnabled;},cue:name=>{if(enabled&&context?.state==='running')cues?.(name);},get paraTargets(){return paraVoice?.targets;},dispose(){paraVoice?.dispose();context?.close();}};
 }
 /** One bumblebee: a soft low buzz (saw plus an octave-down triangle, low-passed) that wanders in pitch and pulses
  * lazily, with a breath of wing air, placed in space by an HRTF panner. Silent until its gain is raised. */
@@ -146,6 +175,15 @@ export function createCuePlayer(context,destination=context.destination,chargeBu
       level.gain.setValueAtTime(0,t);level.gain.linearRampToValueAtTime(.11,t+.35);level.gain.exponentialRampToValueAtTime(.0001,t+.62);
       track(tone);nodes.push(filter,level);tone.connect(filter).connect(level).connect(out);tone.start(t);tone.stop(t+.65);
     }
+    // Things answering a blow (shared/play/reactions.json names the sound).
+    else if(name==='rustle'){burst(.35,'bandpass',3200,1.2,.35,1800,.05);burst(.22,'highpass',6500,.7,.12,4000,.02,.06);}
+    else if(name==='puff')burst(.32,'lowpass',1300,.7,.45,250,.02);
+    else if(name==='splat'){burst(.12,'lowpass',900,.7,.7,200);ring(.15,140,.3,'sine',60);}
+    else if(name==='thunk'){burst(.06,'lowpass',700,.7,.6);ring(.18,110,.5,'sine',70);}
+    else if(name==='tok'){burst(.03,'bandpass',2500,3,.4);ring(.09,900,.35,'triangle',600);}
+    else if(name==='chime'){ring(2.4,660,.14);ring(2,660*2.76,.06);ring(1.4,660*5.4,.03);ring(2.6,661.5,.08);}
+    else if(name==='boing'){ring(.45,170,.32,'triangle',430);ring(.3,85,.2,'sine',60);}
+    else if(name==='pop'){burst(.04,'highpass',3000,.7,.3);ring(.08,600,.4,'sine',1500);}
 
   }
 }

@@ -34,27 +34,29 @@
     },
     "parakite": {
       "label": "Parakiting",
-      "trim_mps": 19.5,
-      "sink_mps": 1.9,
+      "trim_mps": 24.0,
+      "sink_mps": 2.1,
       "turn_rps": 1.15,
       "powered_climb_mps": 0,
       "tether_m": 0,
       "flare_efficiency": 0.84,
       "wing_asset": "flight/parakite.glb",
-      "max_bank_rad": 1.02,
-      "brake_fraction": 0.43,
+      "max_bank_rad": 1.1,
+      "brake_fraction": 0.58,
       "accelerator_fraction": 0.48,
       "speed_response": 0.68,
       "polar_drag": 7,
-      "span_m": 8.5,
-      "chord_m": 2.5,
-      "canopy_height_m": 5.0,
-      "arc_m": 1.25,
+      "span_m": 6.6,
+      "chord_m": 1.95,
+      "canopy_height_m": 4.4,
+      "arc_m": 0.95,
       "dive_response": 0.95,
-      "maneuver_bank_rad": 1.26,
+      "maneuver_bank_rad": 1.3,
       "recovery_response": 0.55,
       "roll_damping": 3.1,
-      "ground_drag_relief": 0.23
+      "ground_drag_relief": 0.23,
+      "max_roll_rate_rps": 0.95,
+      "turn_release": 0.1
     },
     "paramotor": {
       "label": "Paramotoring",
@@ -82,76 +84,13 @@
   },
   "launches": [
     {
-      "id": "granite-ridge",
-      "label": "Granite Ridge",
+      "id": "north-wall",
+      "label": "North Wall",
       "xy_m": [
-        -380,
-        1620
+        -1440.0,
+        3020.0
       ],
-      "heading_deg": 270
-    },
-    {
-      "id": "east-bowl",
-      "label": "East Bowl",
-      "xy_m": [
-        1080,
-        1360
-      ],
-      "heading_deg": 250
-    },
-    {
-      "id": "trail-t5",
-      "label": "T5 \u00b7 trail descent",
-      "xy_m": [
-        -420,
-        1560
-      ],
-      "heading_deg": 225,
-      "clearance_m": 32
-    },
-    {
-      "id": "gondola-high-ridge",
-      "label": "Gondola Weave \u00b7 high ridge",
-      "xy_m": [
-        -540,
-        1720
-      ],
-      "heading_deg": 0,
-      "clearance_m": 45,
-      "terrain_protection": false
-    },
-    {
-      "id": "gondola-midline",
-      "label": "Gondola \u00b7 middle shoulder",
-      "xy_m": [
-        -457.5,
-        1200
-      ],
-      "heading_deg": 270,
-      "clearance_m": 100,
-      "terrain_protection": false
-    },
-    {
-      "id": "cirque-lip",
-      "label": "Granite Cirque \u00b7 lip",
-      "xy_m": [
-        192,
-        1441
-      ],
-      "heading_deg": 250,
-      "clearance_m": 55,
-      "terrain_protection": false
-    },
-    {
-      "id": "granite-riverbank",
-      "label": "Granite River \u00b7 south bank",
-      "xy_m": [
-        3150,
-        -1100
-      ],
-      "heading_deg": 90,
-      "clearance_m": 35,
-      "terrain_protection": false
+      "heading_deg": 320
     }
   ],
   "thermals": [
@@ -184,8 +123,8 @@
     }
   ],
   "landing_clearance_m": 1.8,
-  "ceiling_m": 2200,
-  "world_limit_m": 3950,
+  "ceiling_m": 4500,
+  "world_limit_m": 11900,
   "launch_radius_m": 20.0,
   "launch_clearance_m": 90.0,
   "collapse": {
@@ -247,7 +186,13 @@
     "pitch_gain": 100,
     "pitch_damping": 16,
     "max_roll_rate_rps": 0.65,
-    "deep_brake_alpha_rad": 0.22
+    "deep_brake_alpha_rad": 0.22,
+    "cell_fill_s": 0.45,
+    "cell_vent_s": 0.22,
+    "cell_full_speed_ratio": 0.42,
+    "tuck_alpha_rad": -0.03,
+    "tuck_band_rad": 0.06,
+    "deflated_lift": 0.35
   },
   "propulsion": {
     "mass_kg": 90,
