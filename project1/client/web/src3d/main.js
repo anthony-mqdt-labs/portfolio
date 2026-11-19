@@ -1,6 +1,8 @@
 import {createFirstPersonFlight} from './first-person-flight.js';
 import {forestSpacing} from '../../../shared/activities/forest-spacing.js';
 import {createParaGuide} from './para-guide.js';
+import {createParakitePractice} from './parakite-practice.js';
+import {createParakiteTour} from './parakite-tour.js';
 import {createParaSignals} from './para-signals.js';
 import {createParaPass} from './para-pass.js';
 import {createParaStreaks} from './para-streaks.js';
@@ -35,13 +37,13 @@ import { createCloudPass } from './clouds.js';
 import {createActorShadows,snappedShadowAnchor} from './actor-shadow.js';
 import { createResolutionGovernor, createQualityGate } from './flight-quality.js';
 import {createFramePacer,WEB_FPS,WEB_FRAME_MS} from './frame-pacing.js';
-import {createIntroGate,INTRO_MIN_DWELL_S,INTRO_MAX_WAIT_S} from './intro-gate.js';
 import { createFlightRig } from './flight-rig.js';
 import { createNavigation } from './navigation.js';
 import { createCharacter } from './character.js';
 import { createFolkLayer } from './folk.js';
 import { createOrganoid } from './organoid-material.js';
 import { stageOrganoid } from './organoid-encounter.js';
+import { stageOrganoidTutor } from './organoid-tutor.js';
 import { createGondolaLayer } from './gondola.js';
 import { createPlayerUI } from './player-ui.js';
 import { buildGondola, deckFloor } from '../../../shared/activities/gondola.js';
@@ -49,6 +51,7 @@ import { buildEcology } from './ecology.js';
 import { createVisitorWatch } from './insect-visits.js';
 import { createPlayProps } from './play-props.js';
 import { buildTethers, buildTrails, TRAIL_SURFACE_LIFT } from './details.js';
+import { buildGenerators } from './generators.js';
 import { createSoundscape, treeSpots } from './audio.js';
 import {createFoleyEvents} from './character-foley.js';
 import { buildWorldCollision } from './collision.js';
@@ -56,7 +59,7 @@ import { sha256, verifyFetched, checkVersion, WORLDMAP_VERSION } from './provena
 import {fetchAssetBytes} from './asset-bytes.js';
 import {VERSION} from './version.js';
 import { createSnowSampler, createTrailSampler, createSurfaceSampler, createRideHeight } from '../../../shared/activities/ride.js';
-import { createWalkHeight } from '../../../shared/activities/walk.js';
+import { createWalkHeight, walkSpawn } from '../../../shared/activities/walk.js';
 import {createLoadingScreen,warmScene,finishGpu,nextPaint} from './loading.js';
 
 const root = new URL('../../../', import.meta.url);
@@ -139,6 +142,7 @@ export async function main() {
   placement={...placement,instances:[...placement.instances,...transition.instances]};
   checkVersion(manifest,1,'viewer manifest');checkVersion(worldmap,WORLDMAP_VERSION,'world map');
   const [meadowData,flightConfig,rideConfig]=await Promise.all([fetchData(worldmap.activities.meadow_life),fetchData(worldmap.activities.flight),fetchData(worldmap.activities.ride)]);
+  const generatorsConfig=await fetchData(worldmap.activities.generators);checkVersion(generatorsConfig,1,'generator rotors');
   const characterConfig=await fetchData(worldmap.activities.character);
   const cameraPolicy=await fetchData(worldmap.activities.camera??'shared/activities/camera.json');checkVersion(cameraPolicy,1,'camera policy');
   const needsSpacing=Object.values(cameraPolicy.profiles).some(p=>p.follow_spacing_fraction>0)||cameraPolicy.areas.some(a=>a.settings.follow_spacing_fraction>0);
@@ -214,9 +218,9 @@ export async function main() {
   // Set the initial sun before expensive atlas bakes; the first preset then
   // reuses them instead of immediately paying for a second bake.
   const lightPresets = {
-      golden: { direction: [-.64,.48,-.55], color: '#ffdda2', fill: '#a8cbdc', intensity: 2.0, ambient: 1.8, exposure: 1.1, warmth: 1, fog: '#d3d8d0' },
-      day: { direction: [-.35,.84,-.42], color: '#fff3d6', fill: '#b7ddef', intensity: 2.0, ambient: 1.75, exposure: 1.05, warmth: .15, fog: '#c8dcd6' },
-      dusk: { direction: [.74,.25,-.63], color: '#ffc18d', fill: '#9baccd', intensity: 1.6, ambient: 1.55, exposure: 1.1, warmth: .85, fog: '#d9b7aa' },
+      golden: { direction: [-.64,.48,-.55], color: '#ffdda2', fill: '#a8cbdc', intensity: 2.0, ambient: 1.8, exposure: 1.1, warmth: 1, fog: '#d3d8d0', windPhase: 'evening' },
+      day: { direction: [-.35,.84,-.42], color: '#fff3d6', fill: '#b7ddef', intensity: 2.0, ambient: 1.75, exposure: 1.05, warmth: .15, fog: '#c8dcd6', windPhase: 'afternoon' },
+      dusk: { direction: [.74,.25,-.63], color: '#ffc18d', fill: '#9baccd', intensity: 1.6, ambient: 1.55, exposure: 1.1, warmth: .85, fog: '#d9b7aa', windPhase: 'night' },
     };
   setTreeLighting({...lightPresets.golden,sun:lightPresets.golden.color,ground:'#7a8452'});
   style.sun.value.set(-.64,.48,-.55).normalize();
@@ -286,7 +290,18 @@ export async function main() {
   const [tumbleHill,reactionTable,places]=await Promise.all([fetchData('shared/play/tumble-hill.json'),fetchData('shared/play/reactions.json'),fetchData('shared/play/places.json')]);
   checkVersion(places,1,'named places');
   const balanceSurface=(x,y)=>snowAt(x,y)>.03?'snow':closeMeadow.contains(x,y)||forestSoil.sample(x,y)>.48||surfaceAt(x,y)==='trail'?'grass':'granite';
-  const navigation=createNavigation(camera,canvas,controls,ground,flightConfig,worldmap,rig,hitTest,{config:rideConfig,surfaceAt,snowAt,height:rideHeight,rig:rideRig,meshes:rideMeshes},character,characterConfig,{cameraPolicy,forestSpacingM:cameraSpacing.meanNearestM,walkHeight,floorHeight:walkHeight.floorHeight,characterHeight,balance:{config:balanceConfig,surfaceAt:balanceSurface},firstPersonEye:()=>firstPerson.eye,firstPersonBody:body=>firstPerson.update({...body,grips:[flightRig.getGripWorld(1,leftGrip),flightRig.getGripWorld(-1,rightGrip)],air:navigation.sampleEnvironment(body.state.x,body.state.y,body.state.z),velocity:body.state.coupled?.pilotVelocity}),onFlightChange:syncFlightUI,flightPresentation:(pose,view,dt,effects)=>{const sample=paraSignals.update(pose,navigation.sampleEnvironment(pose.x,pose.y,pose.z),dt,effects,view);paraStreaks.update(sample,camera,view,effects);return sample;},haptics:()=>document.getElementById('haptics').checked});
+  const localHost=/^(localhost|127\.0\.0\.1|\[::1\]|.+\.localhost)$/.test(location.hostname);
+  const experimentalParakite=localHost&&new URLSearchParams(location.search).has('rotational-parakite');
+  const practiceLaunch=experimentalParakite?flightConfig.parakite_practice_launch:null;
+  const practiceSite=practiceLaunch?flightConfig.launches.length:-1;
+  const playerFlight=experimentalParakite?{...flightConfig,experimentalParakite,
+    launches:practiceLaunch?[...flightConfig.launches,practiceLaunch]:flightConfig.launches}:flightConfig;
+  const navigation=createNavigation(camera,canvas,controls,ground,playerFlight,worldmap,rig,hitTest,{config:rideConfig,surfaceAt,snowAt,height:rideHeight,rig:rideRig,meshes:rideMeshes},character,characterConfig,{cameraPolicy,forestSpacingM:cameraSpacing.meanNearestM,walkHeight,floorHeight:walkHeight.floorHeight,characterHeight,balance:{config:balanceConfig,surfaceAt:balanceSurface},firstPersonEye:()=>firstPerson.eye,firstPersonCollar:()=>firstPerson.collarBounds,firstPersonBody:body=>firstPerson.update({...body,grips:[flightRig.getGripWorld(1,leftGrip),flightRig.getGripWorld(-1,rightGrip)],air:navigation.sampleEnvironment(body.state.x,body.state.y,body.state.z),velocity:body.state.coupled?.pilotVelocity}),onFlightChange:syncFlightUI,flightPresentation:(pose,view,dt,effects)=>{const sample=paraSignals.update(pose,navigation.sampleEnvironment(pose.x,pose.y,pose.z),dt,effects,view);paraStreaks.update(sample,camera,view,effects);return sample;},haptics:()=>document.getElementById('haptics').checked});
+  // The world's generators turn in the same air the wing does. They are not
+  // decoration on a timer: calm air slows them and the afternoon's up-valley
+  // breeze slows them again, because both come from the shared field through
+  // `sampleEnvironment`.
+  const generators=buildGenerators({placement,assets,placements,config:generatorsConfig,air:(x,y,z)=>navigation.sampleEnvironment(x,y,z)});
   const folk=await createFolkLayer({fetchData,worldmap,placement,flightConfig,walkConfig:characterConfig.walk,height:walkHeight,ground:(x,y)=>ground.height(x,y),hitTest,gondola:gondolaLine,balance:{config:balanceConfig,surfaceAt:balanceSurface},assets,scene,camera,canvas});
   // Cabins run on the folk world's clock, so the cats ride in the cabins drawn.
   const gondola=createGondolaLayer({line:gondolaLine,scene,navigation,clock:()=>folk.api.world.time,panel:document.getElementById('gondola-panel')});
@@ -335,6 +350,10 @@ export async function main() {
   const organoid=stageOrganoid({config:organoidConfig,clips:organoidCues,actor:organoidActor,scene,camera,canvas,
     navigation,character,characterScale:()=>characterConfig.scale,height:characterHeight,hit:hitTest,waterAt:walkHeight.waterAt,
     playProps:play.props,sun:style.sun.value,soundscape,panel:document.getElementById('organoid-scene')});
+  // The Organoid as guide: tips about the thing the player is standing near, on the ground only.
+  const tutor=stageOrganoidTutor({config:organoidConfig,organoid,soundscape,clip:organoidCues[organoidConfig.tutor.call.clip],
+    panel:document.getElementById('organoid-tip'),navigation,characterScale:()=>characterConfig.scale,
+    anchors:{'tumble-hill':tumbleHill.fall_line_xy_m,gondola:gondolaLine.stations.map(s=>s.xy_m)}});
   const visitors=createVisitorWatch({ecology,character,navigation,camera,focusEl:document.getElementById('focus')});
   character.onCue=name=>{soundscape.cue(name);if(['swish','swish_heavy','spin','impact'].includes(name)&&navigation.mode==='walk')play.swing([navigation.state.x,navigation.state.y],navigation.state.heading??0);};
   const foleyEvents=createFoleyEvents(name=>soundscape.cue(name));
@@ -364,25 +383,31 @@ export async function main() {
   const windWaterToggle=document.getElementById('wind-water-audio');
   soundscape.setWindWaterEnabled(windWaterToggle.checked);
   windWaterToggle.addEventListener('change',()=>soundscape.setWindWaterEnabled(windWaterToggle.checked));
-  soundscape.toggle(true).catch(()=>{});
-  const unlockSound=()=>soundscape.unlock().catch(()=>{});
-  window.addEventListener('pointerdown',unlockSound,{once:true});window.addEventListener('keydown',unlockSound,{once:true});
+  const journal=document.getElementById('loading-screen');
+  const unlockSound=event=>{
+    // Entry resumes audio directly, and touches on the loading journal leave it quiet.
+    if(event&&(!event.isTrusted||!journal.hidden||event.target.id==='loading-begin'))return;
+    soundscape.unlock().catch(error=>console.warn('Tumbler could not start audio',error));
+  };
+  window.addEventListener('click',unlockSound);window.addEventListener('keydown',unlockSound);
   soundButton.addEventListener('click',async e=>{const enabled=await soundscape.toggle();e.target.textContent=enabled?'Sound on':'Sound off';e.target.setAttribute('aria-pressed',String(enabled));});
   const modeSelect=document.getElementById('activity'),siteSelect=document.getElementById('launch-site');
   const rideModes=Object.keys(rideConfig.modes);
   let scenicCourse=null,scenicProgress=null;
   const paraGuide=createParaGuide(document.getElementById('para-guide'),camera);
   const courseRetry=document.getElementById('course-retry');
-  courseRetry.addEventListener('click',()=>{if(scenicCourse&&flightConfig.modes[navigation.mode])setActivity(navigation.mode);});
+  const onPracticeFlight=()=>practiceSite>=0&&navigation.mode==='parakite'&&siteSelect.value===String(practiceSite);
+  courseRetry.addEventListener('click',()=>{if(onPracticeFlight()||scenicCourse&&flightConfig.modes[navigation.mode])setActivity(navigation.mode);});
   function showStarts(mode){
     const list=rideModes.includes(mode)?rideConfig.starts.filter(s=>s.mode===mode).map(s=>[s.id,s.label]):flightConfig.launches.map((l,i)=>[String(i),l.label]);
+    if(mode==='parakite'&&practiceLaunch)list.push([String(practiceSite),practiceLaunch.label]);
     const key=list.map(([id])=>id).join();if(siteSelect.dataset.key===key)return;
     siteSelect.replaceChildren(...list.map(([id,label])=>new Option(label,id)));siteSelect.dataset.key=key;
   }
-  const helps={orbit:'Drag to orbit · Right-drag to pan · Wheel to approach',fly:'WASD: fly · Mouse: look (click to capture, Esc to release) · R: up · F: down · Hold Shift: slow',walk:'WASD / stick: walk · Shift: toggle run · push the stick fully to run · Space / A: jump or wall push · Z / LB: tuck and roll down a slope · F / Y: katana · Click / Q / B: slash · Hold R / RT: charge, release to cleave · Ctrl / R3: slide · E / X: grab tree / reharness · Drag / right stick: look',
+  const helps={orbit:'Drag to orbit · Right-drag to pan · Wheel to approach',fly:'WASD: fly · Mouse: look (click to capture, Esc to release) · R: up · F: down · Hold Shift: slow',walk:'WASD: run · stick: walk, push fully to run ·Space / A: jump or wall push · Shift / LB: tuck and roll down a slope · Shift in water: dive toggle · F / Y: katana · Click / Q / B: slash · Hold R / RT: charge, release to cleave · Ctrl / R3: slide · E / X: reharness · walk into a trunk to climb it · Drag / right stick: look',
     parakite:'A/D steer · W dive / S flare · Drag to look · Launch to restart',
-    ski:'A/D carve · W pole · S snowplough · Shift tuck · Space hop · V view · Pad: stick, RT/LT, A hop, B tuck, Y view',
-    bike:'A/D steer · W pedal · S brake · Shift crouch · Space hop · V view · Pad: stick, RT/LT, A hop, B crouch, Y view'};
+    ski:'A/D carve · W pole · S snowplough · Shift tuck ·Space hop · V view · Pad: stick, RT/LT, A hop, B tuck, Y view',
+    bike:'A/D steer · W pedal · S brake · Shift crouch ·Space hop · V view · Pad: stick, RT/LT, A hop, B crouch, Y view'};
   function syncFlightUI(mode,site,weather){
     scenicCourse=flightConfig.modes[mode]&&site!=='here'?speedflying?.courses.find(c=>c.launch_id===flightConfig.launches[site]?.id)??null:null;
     scenicProgress=null;
@@ -392,12 +417,15 @@ export async function main() {
     document.getElementById('weather').value=weather;updateHelp(mode);
   }
   function updateHelp(mode){
+    const rotating=mode==='parakite';
+    document.body.dataset.rotationalFlight=String(rotating);
     const travel=mode==='parakite'?'forward: raise handles / dive · back: pull / flare':'forward: speedbar · back: brakes';
     const power=mode==='paramotor'?' · LB/RB: motor':'';
-    const flightHelp=`Stick ${travel} · LT/RT: independent handles · B + steer: wingovers${power} · Y: view · Land then X: unhook · A: launch / air retry · D-pad: wing / ridge · Menu: weather`;
+    const flightHelp=`Stick ${travel} · LT/RT: independent handles${rotating?'':' · B + steer: wingovers'}${power} · Y: view · Land then X: unhook · A: launch / air retry · D-pad: wing / ridge · Menu: weather`;
     const pad=[...(navigator.getGamepads?.()??[])].some(p=>p?.connected);
-    const keyboardFlight=`A/D: ${mode==='parakite'?'weight shift + outside release':'weight shift + inside brake'} · W/S: ${mode==='parakite'?'raise handles / pull to flare':'speedbar / brakes'} · Shift + steer: wingovers${mode==='paramotor'?' · R/F: motor':''} · V: view · E: unhook on safe ground · Space: ground launch · Launch: restart`;
-    document.getElementById('help').textContent=flightConfig.modes[mode]?(pad?flightHelp:keyboardFlight):pad&&mode==='orbit'?'A: take flight · D-pad: wing / ridge · Menu: weather':(helps[mode]??helps.orbit);
+    const keyboardFlight=`A/D: ${mode==='parakite'?'weight shift + outside release':'weight shift + inside brake'} · W/S: ${mode==='parakite'?'raise handles / pull to flare':'speedbar / brakes'} · J/K: independent handles${rotating?'':' · Shift + steer: wingovers'}${mode==='paramotor'?' · R/F: motor':''} · V: view · E: unhook on safe ground · Space: ground launch · Launch: restart`;
+    const parakiteHelp=pad?'Left stick to fly · Y changes view · A retries in the air':'A/D steer · W dive · S pull · V changes view';
+    document.getElementById('help').textContent=rotating?parakiteHelp:flightConfig.modes[mode]?(pad?flightHelp:keyboardFlight):pad&&mode==='orbit'?'A: take flight · D-pad: wing / ridge · Menu: weather':(helps[mode]??helps.orbit);
   }
   function setActivity(mode){
     if(organoid.active)return;
@@ -428,6 +456,8 @@ export async function main() {
   const challengeSelect=document.getElementById('flight-challenge');
   challengeSelect.replaceChildren(new Option('Free flight',''),...Object.entries(flightConfig.challenges??{}).map(([id,c])=>new Option(c.label,id)));
   challengeSelect.addEventListener('change',()=>navigation.setChallenge(challengeSelect.value));
+  const parakitePractice=createParakitePractice({navigation,canvas,challenge:challengeSelect,
+    panel:document.getElementById('para-practice'),open:document.querySelector('[data-practice-open]')});
   const motionSelect=document.getElementById('motion');
   motionSelect.value=matchMedia('(prefers-reduced-motion: reduce)').matches?'0':'1';navigation.setEffects(Number(motionSelect.value));
   motionSelect.addEventListener('change',()=>navigation.setEffects(Number(motionSelect.value)));
@@ -456,20 +486,30 @@ export async function main() {
   const actorShadows=createActorShadows(renderer,[rig,character.object,rideRig],style);
   const actorFocus=new T.Vector3();
   const shadowCentre = new T.Vector3(Infinity, Infinity, Infinity);
-  let shadowRevision=-1,lastShadowTime=0;
-  const shadowFocus=new T.Vector3(Infinity,Infinity,Infinity),groundShadowFocus=new T.Vector3();
-  function updateShadow(force = false) {
+  let shadowRevision=-1,lastShadowTime=0,guidedShadowLead=null;
+  const shadowFocus=new T.Vector3(Infinity,Infinity,Infinity),groundShadowFocus=new T.Vector3(),shadowAim=new T.Vector3();
+  function updateShadow(force = false,forestSelected = false) {
     const aim=controls.target;
     // Keep the scenery footprint on the landscape through aerial descents.
     const target=groundShadowFocus.set(aim.x,ground.height(aim.x,-aim.z)??aim.y,aim.z);
     setTreeShadowFocus(target);
     const now=performance.now();
-    if (!force && target.distanceToSquared(shadowCentre)<40*40 &&
-      ((shadowRevision===forest.stats.shadowRevision&&target.distanceToSquared(shadowFocus)<4*4)||now-lastShadowTime<350))return;
+    if(!force){
+      if(guidedShadowLead){
+        // The 520 m view footprint has 60 m of margin inside the 640 m map.
+        // Keep 12 m in reserve for snapping and the shadow filter.
+        if(shadowRevision===forest.stats.shadowRevision&&target.distanceToSquared(shadowCentre)<48*48)return;
+      }else if(target.distanceToSquared(shadowCentre)<40*40&&
+        ((shadowRevision===forest.stats.shadowRevision&&target.distanceToSquared(shadowFocus)<4*4)||now-lastShadowTime<350))return;
+    }
+    shadowAim.copy(target);
+    if(guidedShadowLead){
+      shadowAim.set(guidedShadowLead.x-target.x,0,-guidedShadowLead.y-target.z).clampLength(0,20).add(target);
+    }
     lastShadowTime=now;shadowFocus.copy(target);
     // Static world shadows retain their light-space texel phase on recenter.
     // A forty-metre world-axis step changes that phase and makes edges jump.
-    shadowCentre.copy(snappedShadowAnchor(target,style.sun.value,SCENERY_SHADOW_SPAN,SCENERY_SHADOW_RESOLUTION));
+    shadowCentre.copy(snappedShadowAnchor(shadowAim,style.sun.value,SCENERY_SHADOW_SPAN,SCENERY_SHADOW_RESOLUTION));
     sun.target.position.copy(shadowCentre);
     sun.position.copy(shadowCentre).addScaledVector(style.sun.value, 900);
     sun.updateMatrixWorld();
@@ -477,7 +517,12 @@ export async function main() {
     sun.shadow.updateMatrices(sun);
     updateTreeSunShadow();
     adoptedForest.updateShadowCasters?.(sun.shadow.getFrustum());
-    forest.update(camera,shadowCentre);shadowRevision=forest.stats.shadowRevision;
+    if(forestSelected){
+      // Adopted tree visibility uses the camera target and is already current.
+      legacyForest.update(camera,shadowCentre);
+      forest.refreshStats();
+    }else forest.update(camera,shadowCentre);
+    shadowRevision=forest.stats.shadowRevision;
     renderer.shadowMap.needsUpdate = true;
   }
   // Under the water's surface: a short teal fog and a tint over the view.
@@ -493,8 +538,14 @@ export async function main() {
   }
   function setLight(name) {
     const p = lightPresets[name];
+    // The light preset also says which phase of the day it depicts, and the
+    // core's own diurnal table turns that into the valley's breeze. The client
+    // names the phase; it never decides what the wind does with it.
+    navigation.setTimeOfDay(p.windPhase);
     setTreeLighting({...p,sun:p.color,ground:'#7a8452'});
     style.sun.value.fromArray(p.direction).normalize(); style.warmth.value = p.warmth;
+    // Each time of day carries its own clouds (worldmap atmosphere.times).
+    cloudPass.setSky(name);
     sun.color.set(p.color); sun.intensity = p.intensity;
     hemisphere.color.set(p.fill); hemisphere.intensity = p.ambient;
     scene.fog.color.set(p.fog); scene.background.copy(scene.fog.color);
@@ -586,22 +637,32 @@ export async function main() {
   const canStartParamotor=()=>paramotorRefusal()===null;
   // The wing still needs room to spread; if the ground refuses it, say what the game said.
   function startParamotor(){if(!canStartParamotor())return paramotorRefusal();setActivity('paramotor');return navigation.mode==='paramotor'?null:(navigation.message||'No room to spread the wing here');}
+  const parakiteTour=createParakiteTour({panel:document.getElementById('parakite-tour'),camera,canvas,navigation,practice:parakitePractice,
+    world:folk.api.world,soundscape,isAvailable:()=>document.body.dataset.uiMode==='player'&&!organoid.active,
+    onFootMode:pose=>{
+      const spawn=walkSpawn(pose.x,pose.y,characterConfig.walk,walkHeight,hitTest);
+      if(navigation.mode!=='walk')navigation.select('orbit');
+      if(spawn)navigation.placeOnFoot(spawn[0],spawn[1],pose.heading);else navigation.select('walk');
+      navigation.cancelShot();syncFlightUI('walk','here',navigation.weather);
+    }});
   const playerUI=createPlayerUI({places:places.places,arriveAt,startParakite,startParamotor,paramotorRefusal,navigation,ground,snowAt,
+    learnParakite:()=>parakiteTour.offer({force:true}),
+    flightStatsDock:()=>parakitePractice.statsDock??parakiteTour.statsDock,
     trees:placement.instances.filter(i=>i.asset.startsWith('redwood/')).map(i=>i.position_m),worldmap,course:speedflying.courses[0],
     launch:flightConfig.launches[Number(parakiteSite)],timeOfDay:()=>timeOfDay,canvas});
   // Two interfaces: the development panels, served locally, and the player's. Players always get theirs;
   // on a local server a switch (or the ` key) chooses, and remembers the choice.
-  const localHost=/^(localhost|127\.0\.0\.1|\[::1\]|.+\.localhost)$/.test(location.hostname);
   const storedMode=(()=>{try{return localStorage.getItem('tumbler.ui-mode');}catch{return null;}})();
-  function setUiMode(mode){
+  function setUiMode(mode,remember=true){
     document.body.dataset.uiMode=mode;navigation.setPlayerMode(mode==='player');if(mode!=='player')playerUI.close();
     if(uiSwitch)uiSwitch.textContent=mode==='player'?'Player UI · switch to dev (`)':'Dev UI · switch to player (`)';
-    try{localStorage.setItem('tumbler.ui-mode',mode);}catch{}
+    if(remember)try{localStorage.setItem('tumbler.ui-mode',mode);}catch{}
   }
   const uiSwitch=localHost?Object.assign(document.createElement('button'),{className:'ui-switch',type:'button'}):null;
   if(uiSwitch){document.body.append(uiSwitch);uiSwitch.addEventListener('click',()=>setUiMode(document.body.dataset.uiMode==='player'?'dev':'player'));
     window.addEventListener('keydown',e=>{if(e.code==='Backquote'&&!e.repeat&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))setUiMode(document.body.dataset.uiMode==='player'?'dev':'player');});}
-  setUiMode(localHost?(storedMode==='player'?'player':'dev'):'player');
+  const previewPlayer=new URLSearchParams(location.search).get('ui')==='player';
+  setUiMode(!localHost||previewPlayer||storedMode==='player'?'player':'dev',!previewPlayer);
   // Cat links: Cat Ronin drops you into walk mode; the folk get an orbit look-in.
   const catNav=document.getElementById('cats');
   for(const cat of folk.api.list()){const b=document.createElement('button');b.dataset.cat=cat.id;b.textContent=cat.name;catNav.append(b);}
@@ -614,7 +675,12 @@ export async function main() {
   setView(viewParam in views ? viewParam : 'tree-village');
   const requestedOrganoid=localHost&&new URLSearchParams(location.search).get('encounter')==='organoid';
   const requestedCourse=speedflying?.courses.find(c=>c.id===new URLSearchParams(location.search).get('course'));
-  if(requestedCourse){
+  const requestedPractice=!!practiceLaunch&&!requestedCourse&&!requestedOrganoid;
+  if(requestedPractice){
+    setUiMode('dev',false);showStarts('parakite');siteSelect.value=String(practiceSite);navigation.setWeather('calm');setActivity('parakite');document.body.dataset.ui='';
+    const lesson=new URLSearchParams(location.search).get('lesson');
+    if(lesson)parakitePractice.prepare(lesson);
+  }else if(requestedCourse){
     const requestedMode=new URLSearchParams(location.search).get('mode');
     const mode=flightConfig.modes[requestedMode]?requestedMode:'parakite';
     const site=flightConfig.launches.findIndex(l=>l.id===requestedCourse.launch_id);
@@ -626,7 +692,7 @@ export async function main() {
   const meadowFocus=meadowViewFocus(camera,ground,undefined,player());meadow.update(camera,meadowFocus);closeMeadow.update(camera,meadowFocus);
 
   let frame = 0, contextLost = false, stopped = false, lastFrame = 0, lastStamp = 0;
-  let presenting=false,introGate=null;
+  let presenting=false,presentedOnce=false,openingFrame=null,audioPrepared=false;
   let elapsed = 0,lastReadout=0;
   const samples = [];
   const metrics = { frame: 0, framesMs: samples, cpuMs: 0, render: {}, get view() { return document.body.dataset.view; } };
@@ -634,17 +700,19 @@ export async function main() {
   // Read-only inspection hook used for repeatable visual/performance checks.
   const visibilityToggle=document.getElementById('visibility-spotlight'),adaptiveToggle=document.getElementById('adaptive');
   const playerVisibility=createPlayerVisibility(camera,renderer,[placements.group,forest.group,geology?.group,riverGranite.group,gondola.group].filter(Boolean),[placements.group,gondola.group]);
-  window.tumbler = { organoid,playerUI,setUiMode,arriveAt,places,startParakite,startParamotor,passTime,terrain,mountainMapStats,play,toTumbleHill,setTumbleMode, folk:folk.api,gondola,airCues,riverGranite,walkHeight,meadowAir,meadowWind,startup,flightRig, distantTreeShadows, scene, camera, renderer, controls, navigation, character, firstPerson, paraSignals, paraPass, paraStreaks, soundscape, ride: { config: rideConfig, snowAt, surfaceAt, height: rideHeight, hitTest, worldmap, setActivity }, forest, treeShadows, cloudPass, actorShadows, ground, terrain, geology, speedflying, transition, forestFloor, forestSoil, ecology, closeMeadow, meadow, metrics, views, setView, setLight, provenance: {files:verifiedFiles}, stats: { terrain:terrain.stats,forest: forest.stats, meadow: meadow.stats, placements: placements.stats } };
+  window.tumbler = { organoid,tutor,parakiteTour,playerUI,setUiMode,arriveAt,places,startParakite,startParamotor,passTime,mountainMapStats,play,toTumbleHill,setTumbleMode, folk:folk.api,gondola,airCues,riverGranite,walkHeight,meadowAir,meadowWind,generators,startup,begin:beginGame,flightRig, distantTreeShadows, scene, camera, renderer, controls, navigation, character, firstPerson, paraSignals, paraPass, paraStreaks, soundscape, ride: { config: rideConfig, snowAt, surfaceAt, height: rideHeight, hitTest, worldmap, setActivity }, forest, treeShadows, cloudPass, actorShadows, ground, terrain, geology, speedflying, transition, forestFloor, forestSoil, ecology, closeMeadow, meadow, metrics, views, setView, setLight, provenance: {files:verifiedFiles}, stats: { terrain:terrain.stats,forest: forest.stats, meadow: meadow.stats, placements: placements.stats } };
   async function prepareFirstView(){
-    presenting=false;startup.ready=false;
+    presenting=false;startup.ready=false;startup.rendered=false;startup.playing=false;
     loading.show();status.textContent='Letting the light settle…';
     paraPass.warm();
+    loading.meter(.63,'Waking the light…');
     await firstPerson.prewarm();
-    // The opening is one continuous move: the village it starts from, then the
-    // walk view it lands on. Both are warmed behind the journal, because the
-    // shot path itself is smooth and the jitter measured inside it is first-use
-    // work — Cat Ronin's programs, geometry and actor shadow map are made while
-    // the camera is still looking at the village.
+    loading.meter(.66,'Finding Cat Ronin…');
+    // Everything the first walk frame needs is warmed behind the journal: the
+    // village view, then the walk view the player will actually open on. The
+    // journal is opaque and the arrival is warmed through the real select('walk')
+    // state, so the entry is a cut to a frame that already exists rather than a
+    // camera move interpolating between two scenes.
     const warmOptions={
       prepare(){
         terrain.update(camera,canvas.height);riverGranite.update(camera,canvas.height);forest.update(camera,shadowCentre);forestFloor.update(camera);updateShadow();
@@ -666,27 +734,96 @@ export async function main() {
       pending:()=>forest.stats.adopted.transitioning>0,
       finish:()=>finishGpu(renderer.getContext()),
     };
-    const warmView=()=>warmScene(warmOptions);
-    const result=await warmView();
-    // Only the automatic intro pans down to him; a ?view= or ?course= link is a
-    // developer shortcut that starts where it is told, so it keeps the cheaper
-    // single-view startup.
+    // Progress is the work: completed draws plus the consecutive stable ones
+    // that the completion rule actually requires. It is not a time estimate.
+    const share=p=>Math.min(1,.45*Math.min(1,p.frames/16)+.55*(p.stable/p.stableFrames));
+    const warmView=onProgress=>warmScene({...warmOptions,onProgress});
+    const result=await warmView(p=>loading.meter(.66+.16*share(p),'Rendering the village…'));
+    // A ?view=, ?course= or ?encounter= link is a developer shortcut that starts
+    // where it is told, so it keeps the cheaper single-view startup.
+    const intro=!viewParam&&!requestedCourse&&!requestedPractice&&!requestedOrganoid;
+    // The gate is the first entry only. A context recovery must return the
+    // player to the activity they were in, not dump them on foot.
+    const gate=intro&&!presentedOnce;
     let arrival=null;
-    if(!viewParam&&!requestedCourse&&!requestedOrganoid){
-      arrival=await navigation.warmArrival(warmView);
-      // The preview pointed the scenery shadow focus at the arrival, as the
-      // first walk frame will. Put it back on the bookmark and pay that rebuild
-      // here rather than after the reveal.
-      updateShadow(true);
-      await nextPaint();warmOptions.prepare();warmOptions.render();await warmOptions.finish();
+    if(gate){
+      loading.meter(.82,'Finding the meadow…');
+      arrival=await navigation.warmArrival(()=>warmView(p=>loading.meter(.82+.12*share(p),'Rendering the meadow…')),{restore:false});
+      // The journal covers the world, and the warm leaves the camera, walk
+      // state, orbit target and scenery-shadow focus exactly where the entry
+      // needs them. Keeping them is what makes the entry cut cheap: the first
+      // live frame reuses the warmed shadow map instead of rebuilding it.
+      navigation.suspend(true);
+      modeSelect.value='walk';document.body.dataset.flying='false';updateHelp('walk');
+      document.body.dataset.ui='hidden';
+      loading.meter(.96,'Preparing sound…');
+      await nextPaint();
+      if(contextLost||stopped)return;
+      try {
+        await soundscape.prepare();
+        audioPrepared=true;
+      } catch(error) {
+        audioPrepared=false;
+        console.warn('Tumbler could not prepare audio',error);
+      }
     }
     firstPerson.finishWarm();
     if(contextLost||stopped)return;
-    Object.assign(startup,result,{ready:true,warm:{orbit:result.frames,arrival:arrival?.frames??0}});
+    if(gate){
+      loading.meter(.98,'Drawing the meadow…');
+      const time=await nextPaint();
+      if(contextLost||stopped)return;
+      drawFrame(time,0);
+      if(contextLost||stopped)return;
+      retainOpeningFrame();
+      await finishGpu(renderer.getContext());
+      if(contextLost||stopped)return;
+    }
+    Object.assign(startup,result,{warm:{orbit:result.frames,arrival:arrival?.frames??0}});
     // Warm-up costs must not enter play's clock or adaptive-quality samples.
     samples.length=0;lastFrame=0;qualityGate.reset(performance.now());
     status.textContent='Ready for the mountains.';updateStamp();
-    presenting=true;loading.reveal();resume();
+    if(gate){
+      // The world is drawn and fenced; the journal now waits for the player's
+      // gesture. That gesture is also what lets the browser start audio, so the
+      // game never claims sound is on while the context is still suspended.
+      startup.rendered=true;
+      loading.ready('The valley is ready.',beginGame);
+      // Automated runs have no gesture to give; they enter through the same
+      // door rather than hanging on a button, and say so in `startup`.
+      if(navigator.webdriver)beginGame({auto:true});
+      return;
+    }
+    Object.assign(startup,{ready:true,rendered:true,playing:true});
+    presentedOnce=true;presenting=true;loading.reveal();resume();
+  }
+  function retainOpeningFrame(){
+    // WebGL may clear its drawing buffer after compositing. Keep just the
+    // opening frame until play can replace it, without changing WebGL buffering.
+    const copy=document.createElement('canvas');
+    copy.className='opening-frame';
+    copy.setAttribute('aria-hidden','true');
+    copy.width=canvas.width;copy.height=canvas.height;
+    copy.getContext('2d',{alpha:false}).drawImage(canvas,0,0);
+    canvas.after(copy);
+    openingFrame=copy;
+  }
+  function clearOpeningFrame(){
+    openingFrame?.remove();
+    openingFrame=null;
+  }
+  function beginGame({auto=false}={}){
+    if(!startup.rendered||presenting||startup.playing||stopped||contextLost)return;
+    loading.reveal();
+    navigation.suspend(false);
+    canvas.focus({preventScroll:true});
+    parakiteTour.offer();
+    status.textContent='Walk the meadow.';
+    presenting=true;presentedOnce=true;
+    startup.ready=true;startup.playing=true;if(auto)startup.autoStarted=true;
+    if(!auto&&audioPrepared)unlockSound();
+    // Let the prepared view reach the screen before the next render begins.
+    requestAnimationFrame(()=>requestAnimationFrame(resume));
   }
   function updateStamp() {
     const ordered = [...samples].sort((a,b) => a-b);
@@ -699,6 +836,7 @@ export async function main() {
       `${forest.stats.trees.toLocaleString()} trees · ${forest.stats.near} nearby meshes · ${forest.stats.tiles} batches`,
       `Redwoods LOD 0 / 1 / 2 / 3: ${forest.stats.adopted.lodCounts.join(" / ")} · ${forest.stats.adopted.culled} culled · select ${forest.stats.adopted.selectionMs.toFixed(1)} ms`,
       `${meadow.stats.patches.toLocaleString()} meadow cells · ${meadow.stats.tiles} batches`,
+      `${generators.stats.turbines} turbines · ${generators.stats.blimps} blimps · ${generators.stats.rpm.toFixed(1)} rpm mean · wind ${(generators.stats.windMps*3.6).toFixed(0)} km/h at the hubs · ${generators.stats.spinning} turning`,
       `Version ${VERSION} · verified ${verifiedFiles} fetched files · generation ${manifest.commit.slice(0,8)} · local working tree`,
     ].join('\n');
   }
@@ -709,35 +847,52 @@ export async function main() {
     const delta = lastFrame ? time - lastFrame : 0;
     lastFrame = time;
     if (delta > 0 && delta < 500) { samples.push(delta); if (samples.length > 240) samples.shift(); }
+    drawFrame(time,delta);
+    if(stopped||contextLost)return;
+    clearOpeningFrame();
+    frame=requestAnimationFrame(animate);
+  }
+  function drawFrame(time,delta){
     elapsed += Math.min(delta, 50) / 1000;
     style.time.value = elapsed;
     // A landed katana blow shakes the view; the offset is taken back off before
     // navigation places the camera again, so it never drifts the follow.
     camera.position.sub(cameraShake);
     gondola.update();
-    if(!organoid.active)navigation.update(Math.min(delta,50)/1000);
+    const tourFoot=navigation.mode==='walk'&&navigation.state?.mode!=='climb'&&navigation.state?.mode!=='swim'?navigation.state:null;
+    parakiteTour.update(Math.min(delta,50)/1000,tourFoot);
+    if(!organoid.active&&!parakiteTour.cinematic)navigation.update(Math.min(delta,50)/1000);
     const onFoot=navigation.mode==='walk'&&navigation.state?.mode!=='climb'&&navigation.state?.mode!=='swim'?navigation.state:null;
     const spotlight=visibilityToggle.checked;
     if(!flightConfig.modes[navigation.mode]){paraSignals.update(null,{},0,0);firstPerson.update({active:false});paraStreaks.update(null);}
     const treePlay=navigation.mode==='walk'&&['climb','branch','tree-jump'].includes(navigation.state?.mode);
     const treePlayer=navigation.state;treePlayFocus.value.set(treePlayer?.x??0,(treePlayer?.z??0)+.9,-(treePlayer?.y??0),treePlay&&spotlight?1.8:0);
-    folk.update(Math.min(delta,50)/1000,onFoot);
+    const guide=parakiteTour.sceneryLead;
+    const pilot=navigation.state;
+    guidedShadowLead=navigation.view==='chase'&&guide&&pilot&&!pilot.grounded&&
+      Math.hypot(guide.x-pilot.x,guide.y-pilot.y)<85?guide:null;
+    folk.update(Math.min(delta,50)/1000,onFoot,!!guide);
     const quake=navigation.mode==='walk'?character.shake??0:0;
     cameraShake.set((Math.random()-.5)*quake,(Math.random()-.5)*quake,(Math.random()-.5)*quake);camera.position.add(cameraShake);
-    if(!organoid.active&&navigation.mode!=='orbit'&&navigation.view==='chase')navigation.constrainCamera();
+    if(!organoid.active&&!parakiteTour.cinematic&&navigation.mode!=='orbit'&&navigation.view==='chase')navigation.constrainCamera();
+    tutor.update(Math.min(delta,150)/1000,onFoot);
     organoid.update(Math.min(delta,150)/1000,onFoot);
     playerVisibility.update(character.object.position.clone().add(new T.Vector3(0,1.1*characterConfig.scale,0)),spotlight&&!organoid.active&&navigation.mode!=='orbit'&&navigation.mode!=='fly'&&navigation.view==='chase',characterConfig.scale,treePlay);
     applyUnderwater(navigation.underwater);airCues.update(camera,Math.min(delta,50)/1000);meadowAir.update(Math.min(delta,50)/1000);
-    terrain.update(camera,canvas.height);riverGranite.update(camera,canvas.height);forest.update(camera,shadowCentre);forestFloor.update(camera);updateShadow();meadowViewFocus(camera,ground,meadowFocus,player());meadow.update(camera,meadowFocus);closeMeadow.update(camera,meadowFocus);visitors.update(Math.min(delta,50)/1000);play.update(Math.min(delta,50)/1000,camera,[...(onFoot?[onFoot]:[]),...folk.api.world.cats.filter(c=>c.body.mode==='walk').map(c=>({...c.body.state,radius:.25}))]);ecology.update(camera,elapsed);soundscape.update(camera,navigation,(kind,maxM,limit)=>ecology.nearby(kind,camera,maxM,limit),paraSignals.sample);updateFoley(Math.min(delta,50)/1000);
+    generators.update(Math.min(delta,50)/1000);
+    terrain.update(camera,canvas.height);riverGranite.update(camera,canvas.height);forest.update(camera,shadowCentre);forestFloor.update(camera);updateShadow(false,true);meadowViewFocus(camera,ground,meadowFocus,player());meadow.update(camera,meadowFocus);closeMeadow.update(camera,meadowFocus);visitors.update(Math.min(delta,50)/1000);play.update(Math.min(delta,50)/1000,camera,[...(onFoot?[onFoot]:[]),...folk.api.world.cats.filter(c=>c.body.mode==='walk').map(c=>({...c.body.state,radius:.25}))]);ecology.update(camera,elapsed);soundscape.update(camera,navigation,(kind,maxM,limit)=>ecology.nearby(kind,camera,maxM,limit),paraSignals.sample);updateFoley(Math.min(delta,50)/1000);
 
     // The canopy owns its view-focused tile budget and conservative wind bounds.
     const flight=navigation.state;
     const rider=rideModes.includes(navigation.mode)?flight:null,riderSpeed=rider?Math.hypot(rider.vx,rider.vy,rider.vz):0;
     const airborne=!!flightConfig.modes[navigation.mode];
+    parakitePractice.render();
     const air=airborne?navigation.air:null;
     if(time-lastReadout>125){
       lastReadout=time;
       const readout=document.getElementById('flight-readout');
+      const rotationalReadout=flight?.mode==='parakite';
+      const lessonActive=!!navigation.flightLesson;
       const touchdown=flight?.landingQuality?
         `${flight.landingQuality[0].toUpperCase()+flight.landingQuality.slice(1)} touchdown · ${(flight.landingSpeed??0).toFixed(1)} m/s down · ${((flight.landingGroundSpeed??0)*3.6).toFixed(0)} km/h along ground`+
         ((flight.landingRunM??0)>.5?` · ${Math.round(flight.landingRunM)} m run`:''):'Landed';
@@ -745,16 +900,19 @@ export async function main() {
         `${rideConfig.modes[rider.mode].label} · ${(riderSpeed*3.6).toFixed(0)} km/h · ${Math.round(rider.startZ-rider.z)} m down · ${(rider.distance/1000).toFixed(2)} km · ${rider.grounded?rider.surface:'airborne'}`):
         !airborne?(navigation.mode==='walk'?(navigation.message||(flight.mode==='climb'?(flight.launchReady?'Crown perch · E / X: launch para':'Climbing · E / X: step onto a nearby branch · Space / A: jump off'):flight.mode==='branch'?'On branch · move along limb · Space / A: leap toward another tree · E / X near trunk: climb':flight.mode==='tree-jump'?'Leaping to branch':null)||`On foot · V: ${navigation.view==='first'?'chase view':'first person'} · Space / A: ${flight.jumpPhase==='airborne'?flight.jumpStyle.replace('_',' '):'jump'}${flight.harnessMode?' · E / X: reharness':''}`):''):
         flight.launching?`${flight.launchStage==='running'?'Running for takeoff':'Inflating the wing'} · ${Math.round((flight.launchProgress??0)*100)}%\n${(flight.speed*3.6).toFixed(0)} km/h · E / X: cancel and unhook`:
-        flight.grounded?`${flight.launchAborted?flight.figure:touchdown}${flight.impact?` · Contact with ${flight.impact}`:''}\n${navigation.message||'E / X: unhook · Space / A: launch here'}`:
+        flight.grounded?`${flight.launchAborted?flight.figure:touchdown}${flight.impact?` · Contact with ${flight.impact}`:''}\n${lessonActive?'Space / A: retry from the bench':navigation.message||'E / X: unhook · Space / A: launch here'}`:
         `${flightConfig.modes[flight.mode].label}  /  ${flightConfig.weather[navigation.weather].label}\n`+
-        `${(flight.speed*3.6).toFixed(0)} km/h AIR   ${(flight.groundSpeed*3.6).toFixed(0)} GROUND   ${Math.round(air.agl)} m AGL\n`+
+        (rotationalReadout?`Air ${Math.round(flight.speed*3.6)} km/h · ${Math.round(air.agl)} m above ground\n`:
+          `${(flight.speed*3.6).toFixed(0)} km/h AIR   ${(flight.groundSpeed*3.6).toFixed(0)} GROUND   ${Math.round(air.agl)} m AGL\n`)+
         `${flight.vario>=0?'+':''}${flight.vario.toFixed(1)} m/s   ${flight.load.toFixed(1)} g   Wind from ${Math.round((Math.atan2(-air.wx,-air.wy)*180/Math.PI+360)%360)}° ${(air.windSpeed*3.6).toFixed(0)} km/h`+
         (flight.mode==='paramotor'?`   Motor ${Math.round(flight.engine*100)}% / set ${Math.round(flight.throttle*100)}% · ${Math.round(flight.thrustN??0)} N thrust`:'')+
         (flight.mode==='parakite'?`\nHandle pull L ${Math.round(flight.handleLeft*100)}% / R ${Math.round(flight.handleRight*100)}% · 45% best glide`:
           `\nBrakes L ${Math.round(flight.brakeLeft*100)}% / R ${Math.round(flight.brakeRight*100)}% · Speedbar ${Math.round(flight.accelerator*100)}%`)+
-        `\n${flight.figure}`+
-        (flight.stall>.15?'\nLOW ENERGY · Ease the handles':air.lee>.15?'\nLEE SIDE · Descending, turbulent air':Math.abs(air.turbulence)>.85?'\nTURBULENT AIR':'');
-      readout.dataset.warning=String(airborne&&!flight.launching&&(flight.grounded?flight.landingQuality==='hard':flight.stall>.15||air.agl<12));
+        (flight.rotation?`\nWing pressure L ${Math.round(flight.rotation.pressure[1]*100)}% / R ${Math.round(flight.rotation.pressure[0]*100)}%`:'')+
+        (lessonActive?'':`\n${flight.figure}`)+
+        (flight.stall>.15&&!flight.rotation?'\nLOW ENERGY · Ease the handles':air.lee>.15?'\nLEE SIDE · Descending, turbulent air':Math.abs(air.turbulence)>.85?'\nTURBULENT AIR':'');
+      readout.dataset.warning=String(airborne&&!flight.launching&&(flight.grounded?flight.landingQuality==='hard':
+        flight.stall>.15||flight.rotation?.pressure.some(value=>value<.65)||air.agl<12));
       if(airborne&&flight.challenge){
         const goal=flightConfig.challenges[flight.challenge.id],progress=flight.challenge;
         readout.textContent+=`\n${goal.label}: ${progress.status==='complete'?'Complete':progress.status==='retry'?'Try again on your next flight':goal.goal==='linked_turns'?`${progress.lastSide?Math.min(progress.turns+1,goal.reversals+1):0} / ${goal.reversals+1} turns`:`Touch down gently below ${Math.round(goal.max_ground_mps*3.6)} km/h`}`;
@@ -773,8 +931,12 @@ export async function main() {
       paraGuide.update(airborne?scenicCourse:null,scenicProgress,flight,document.getElementById('course-guide').checked);
       document.body.dataset.flying=String(airborne);document.body.dataset.pilotView=navigation.view;
     }
-    courseRetry.hidden=!(airborne&&scenicCourse&&['landed','retry'].includes(scenicProgress?.phase)&&document.getElementById('course-guide').checked);
-    if(!courseRetry.hidden)courseRetry.textContent=`Fly ${scenicCourse.label} again ↗`;
+    const practiceLanded=onPracticeFlight()&&flight?.grounded&&!flight.launching;
+    courseRetry.hidden=!!navigation.flightLesson||!(airborne&&(practiceLanded||scenicCourse&&['landed','retry'].includes(scenicProgress?.phase)&&document.getElementById('course-guide').checked));
+    if(!courseRetry.hidden){
+      courseRetry.dataset.practice=String(!!practiceLanded);
+      courseRetry.textContent=`Fly ${practiceLanded?practiceLaunch.label:scenicCourse.label} again ↗`;
+    }
     const localWind=air??navigation.sampleEnvironment(camera.position.x,-camera.position.z,camera.position.y);
     style.wind.value.set(localWind.wx/Math.max(1,flightConfig.wind.speed_mps),-localWind.wy/Math.max(1,flightConfig.wind.speed_mps));
     // Slow, bounded render-scale adaptation. Preserve the user's chosen ceiling.
@@ -782,20 +944,6 @@ export async function main() {
     // mid-move is a visible hitch, so the gate also restarts the sample window.
     const next=qualityGate.decide(time,samples,adaptiveToggle.checked,navigation.shotActive||organoid.active);
     if(next!==null&&Math.abs(next-qualityScale)>.001){qualityScale=next;adoptedForest.setQuality(qualityScale);samples.length=0;renderer.setPixelRatio(pixelRatio*qualityScale);renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);}
-    // The opening pan starts when the cadence is steady, not on a clock. The
-    // gate reads the same accepted intervals the governor and stamp use, and it
-    // is dropped rather than fired late if the establishing view was left
-    // behind, so it can never interrupt whatever the player is looking at now.
-    if(introGate){
-      if(navigation.mode==='orbit'&&document.body.dataset.view==='tree-village'){
-        const go=introGate.step(time,samples)==='go';
-        metrics.intro=introGate.last;
-        if(go){
-          introGate.last.releasedMs=time;introGate=null;
-          document.body.dataset.ui='hidden';setActivity('walk');canvas.focus();
-        }
-      } else introGate=null;
-    }
     sky.position.copy(camera.position);
     const start = performance.now();
     try {
@@ -812,7 +960,6 @@ export async function main() {
     metrics.cpuMs = performance.now() - start; metrics.frame++;
     Object.assign(metrics.render, renderer.info.render);
     if (time - lastStamp > 700) { updateStamp(); lastStamp = time; }
-    frame = requestAnimationFrame(animate);
   }
   function resume() { lastFrame = 0;framePacer.reset(); if (presenting && !frame && !contextLost && !stopped && !document.hidden) frame = requestAnimationFrame(animate); }
   document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else resume(); });
@@ -821,14 +968,15 @@ export async function main() {
     // The shot's clock is frozen while the context is gone; restart it cleanly
     // instead of resuming an interpolation whose frames nobody saw.
     navigation.cancelShot();organoid.skip();
-    presenting=false;startup.ready=false;loading.show('The light slipped away. Preparing it again…');
+    clearOpeningFrame();
+    presenting=false;startup.ready=false;startup.rendered=false;loading.show('The light slipped away. Preparing it again…');
     status.textContent = 'Graphics paused — recovering…';
   });
   canvas.addEventListener('webglcontextrestored', async () => {
     try { contextLost=false;cloudPass.lighting.update(true);cloudPass.shadows.update(true);forest.rebuildImpostors();distantTreeShadows.update(style.sun.value,true);ecology.rebuildImpostors();updateShadow(true);await prepareFirstView(); }
     catch(error){stopped=true;loading.fail(error);console.error(error);}
   });
-  window.addEventListener('pagehide', e => { if (!e.persisted) { stopped = true; cancelAnimationFrame(frame); riverGranite.dispose();geology?.dispose();terrain.dispose();distantTreeShadows.dispose();forest.dispose();treeShadows.dispose();ecology.dispose();airCues.dispose();forestLitterTexture.dispose();litterBitmap.close();forestFloor.dispose();forestSoil.dispose();meadowAir.dispose();meadowWind.dispose();meadow.dispose();organoid.dispose();soundscape.dispose();navigation.dispose();firstPerson.dispose();flightRig.dispose();character.dispose();folk.dispose();gondola.dispose();actorShadows.dispose();cloudPass.dispose();paraPass.dispose();controls.dispose(); renderer.dispose(); } });
+  window.addEventListener('pagehide', e => { if (!e.persisted) { stopped = true; cancelAnimationFrame(frame); riverGranite.dispose();geology?.dispose();terrain.dispose();distantTreeShadows.dispose();forest.dispose();treeShadows.dispose();ecology.dispose();airCues.dispose();forestLitterTexture.dispose();litterBitmap.close();forestFloor.dispose();forestSoil.dispose();meadowAir.dispose();meadowWind.dispose();meadow.dispose();tutor.dispose();parakiteTour.dispose();organoid.dispose();soundscape.dispose();navigation.dispose();firstPerson.dispose();flightRig.dispose();character.dispose();folk.dispose();gondola.dispose();actorShadows.dispose();cloudPass.dispose();paraPass.dispose();controls.dispose(); renderer.dispose(); } });
   await prepareFirstView();
   if(requestedOrganoid){
     toTumbleHill();
@@ -837,13 +985,7 @@ export async function main() {
     const [x,y]=organoidConfig.approach_xy_m;
     navigation.placeOnFoot(player.x,player.y,Math.atan2(y-player.y,x-player.x));
   }
-  // Walk is the default: a ?view= link stays put (dev shortcut); otherwise the
-  // village view holds until its cadence has settled, then the UI hides and the
-  // camera pans to him (navigation owns that shot, like any switch from looking
-  // around to walking). animate() steps the gate, so the transition has one
-  // owner and no timer can race the frame loop.
-  if(!viewParam&&!requestedCourse&&!requestedOrganoid){
-    introGate=createIntroGate({minDwellS:INTRO_MIN_DWELL_S,maxWaitS:INTRO_MAX_WAIT_S,startMs:performance.now()});
-    window.tumbler.intro=introGate;
-  }
+  // The default opening is the journal's ready state: the world is drawn behind
+  // it, and the Begin gesture is what starts play and audio. Developer links
+  // (?view=, ?course=, ?encounter=) start where they are told, as before.
 }

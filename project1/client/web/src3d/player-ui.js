@@ -12,22 +12,22 @@ const TIME_LABELS={golden:'Golden hour',dusk:'Evening',day:'Morning'};
 // as map-legend symbols; an empty list means that input has no binding for it.
 const CONTROLS={
   walk:{title:'On foot',rows:[
-    ['Walk',['WASD'],['L stick']],['Run',['Shift'],['L stick, push fully']],['Look',['Drag','Arrows'],['R stick']],
-    ['Jump',['Space'],['A']],['Tuck and roll, held',['Z'],['LB']],['Slide',['Ctrl'],['R3']],
+    ['Walk, runs by default',['WASD'],['L stick, push fully to run']],['Look',['Drag','Arrows'],['R stick']],
+    ['Jump',['Space'],['A']],['Tuck and roll, held',['Shift'],['LB']],['Dive in water, press to toggle',['Shift'],[]],['Slide',['Ctrl'],['R3']],
     ['Draw the katana',['F'],['Y']],['Slash',['Q','Click'],['B']],['Charge, held',['R'],['RT']],
-    ['Grab a tree',['E'],['X']],['First person',['V'],['L3']],['Map',['Esc','M'],['Menu']]]},
+    ['Grab a tree',['E'],['X']],['First person',['V'],['L3']],['Board the gondola, on a station deck',['G'],['RB']],['Map',['Esc','M'],['Menu']]]},
   harness:{title:'Paramotor, on the ground',rows:[
     ['Start the take-off run',['Space'],['A']],['Steer',['A','D'],['L stick']],['Motor up, down',['R','F'],['RB','LB']],
     ['Unhook and walk',['E'],['X']],['Look',['Drag','Arrows'],['R stick']],['Map',['Esc','M'],['Menu']]]},
   paramotor:{title:'Paramotor',rows:[
-    ['Steer',['A','D'],['L stick']],['Speed bar, brakes',['W','S'],['L stick']],['Brake handles',[],['LT','RT']],
+    ['Steer',['A','D'],['L stick']],['Speed bar, brakes',['W','S'],['L stick']],['Brake handles, left and right',['J','K'],['LT','RT']],
     ['Motor up, down',['R','F'],['RB','LB']],['Wingovers',['Shift','A','D'],['B','L stick']],['View',['V'],['Y']],
     ['Look',['Drag','Arrows'],['R stick']],['After landing, unhook',['E'],['X']],['Map',['Esc','M'],['Menu']]]},
   parakite:{title:'Parakite',rows:[
-    ['Steer',['A','D'],['L stick']],['Dive, flare',['W','S'],['L stick']],['Handles',[],['LT','RT']],
+    ['Steer',['A','D'],['L stick']],['Dive, flare',['W','S'],['L stick']],['Handles, left and right',['J','K'],['LT','RT']],
     ['Wingovers',['Shift','A','D'],['B','L stick']],['View',['V'],['Y']],['Look',['Drag','Arrows'],['R stick']],
     ['After landing, unhook',['E'],['X']],['Map',['Esc','M'],['Menu']]]},
-  gondola:{title:'Gondola',rows:[['Look',['Drag','Arrows'],['R stick']],['Map',['Esc','M'],['Menu']]]},
+  gondola:{title:'Gondola',rows:[['Fast travel to the far station',['T'],['RB']],['View',['V'],['Y']],['Look',['Drag','Arrows'],['R stick']],['Map',['Esc','M'],['Menu']]]},
 };
 const MENU_CONTROLS={
   map:[['Choose a place',['Arrows','WASD','Click'],['D-pad','L stick']],['Travel there',['Enter'],['A']],
@@ -37,6 +37,7 @@ const MENU_CONTROLS={
 
 const el=(tag,props={},...children)=>{const n=Object.assign(document.createElement(tag),props);n.append(...children.filter(c=>c!=null));return n;};
 const glyph=(label,kind)=>el('span',{className:`glyph glyph-${kind} glyph-${label.length>2?'word':'key'}`,textContent:label});
+const paraModes=new Set(['paraglider','parakite','paramotor']);
 function controlRow([action,keys,pad]){
   const keyCell=keys.length?keys.map(k=>glyph(k,'key')):[el('span',{className:'glyph-none',textContent:'not on the keyboard'})];
   return el('div',{className:'control-row'},el('span',{className:'control-action',textContent:action}),el('span',{className:'control-keys'},...keyCell),el('span',{className:'control-pad'},...pad.map(b=>glyph(b,'pad'))));
@@ -46,12 +47,19 @@ function legend(rows,{caption}={}){
     el('div',{className:'control-head'},el('span',{textContent:''}),el('span',{textContent:'Keyboard'}),el('span',{textContent:'Controller'})),...rows.map(controlRow));
 }
 
-export function createPlayerUI({places,arriveAt,startParakite,startParamotor,paramotorRefusal,navigation,ground,snowAt,trees,worldmap,course,launch,timeOfDay,canvas}){
+export function createPlayerUI({places,arriveAt,startParakite,startParamotor,paramotorRefusal,navigation,ground,snowAt,trees,worldmap,course,launch,timeOfDay,canvas,learnParakite,flightStatsDock}){
   const root=el('div',{className:'player-ui'});
   const card=el('aside',{className:'key-card',ariaLabel:'Controls'});
   const toast=el('div',{className:'arrival',ariaLive:'polite'});
   const menu=el('section',{className:'trail-map',hidden:true,ariaLabel:'Trail map'});
-  root.append(card,toast,menu);document.body.append(root);
+  const statRows=new Map(['Airspeed','Groundspeed','Above ground','Vertical speed','Load','Wing pressure'].map(label=>{
+    const value=el('dd');
+    const className=['Airspeed','Above ground','Wing pressure'].includes(label)?'compact-reading':'';
+    return [label,{value,row:el('div',{className},el('dt',{textContent:label}),value)}];
+  }));
+  const flightStats=el('aside',{className:'player-flight-stats',hidden:true,ariaLabel:'Para-flight stats'},
+    el('h3',{textContent:'Para-flight'}),el('dl',{},...[...statRows.values()].map(({row})=>row)));
+  root.append(card,flightStats,toast,menu);document.body.append(root);
 
   // ---- the map, drawn once from the world
   const pts=[...places.map(p=>p.arrive_xy_m),...course.control_xy_m];
@@ -123,6 +131,9 @@ export function createPlayerUI({places,arriveAt,startParakite,startParamotor,par
     const actions=[el('button',{type:'button',className:'action action-primary',onclick:travel},'Travel to ',selected.label),
       el('button',{type:'button',className:'action',onclick:()=>{close();startParakite();}},'Fly the parakite from North Wall'),
       el('button',{type:'button',className:'action',disabled:!paramotor,onclick:paramotorNow},paramotor?'Paramotor from where you stand':`Paramotor: ${refusal.toLowerCase()}`)];
+    if(learnParakite&&navigation.mode==='walk')actions.push(el('button',{type:'button',className:'action',onclick:()=>{
+      close();if(!learnParakite())notice('Look for Juno on open ground.');
+    }},'Learn parakiting with Juno'));
     side.replaceChildren(el('h3',{className:`side-name side-${selected.kind}`,textContent:selected.label}),el('p',{className:'side-about',textContent:selected.about}),
       el('div',{className:'actions'},...actions),legend(MENU_CONTROLS.map.filter(([a])=>paramotor||!a.startsWith('Paramotor')),{caption:'This map'}));
   }
@@ -164,6 +175,28 @@ export function createPlayerUI({places,arriveAt,startParakite,startParamotor,par
     card.classList.remove('folded');card.replaceChildren(el('h3',{textContent:CONTROLS[k].title}),legend(CONTROLS[k].rows));
     foldTimer=setTimeout(()=>{if(cardKey===k){card.classList.add('folded');card.replaceChildren(el('h3',{textContent:CONTROLS[k].title}),folded());}},12000);}
 
+  let nextStats=0;
+  function renderFlightStats(now){
+    const host=flightStatsDock?.()??root;
+    if(flightStats.parentElement!==host){host.append(flightStats);nextStats=0;}
+    const flight=navigation.state;
+    const show=active()&&!open&&navigation.view==='chase'&&paraModes.has(navigation.mode)&&flight&&!flight.grounded;
+    if(!show){flightStats.hidden=true;nextStats=0;return;}
+    if(now<nextStats)return;
+    nextStats=now+125;
+    const agl=flight.z-navigation.sampleFloor(flight.x,flight.y);
+    const vario=flight.vario??0;
+    const pressure=flight.rotation?.pressure;
+    const readings=[`${Math.round(flight.speed*3.6)} km/h`,`${Math.round(flight.groundSpeed*3.6)} km/h`,
+      `${Math.max(0,Math.round(agl))} m`,`${vario>0?'+':''}${vario.toFixed(1)} m/s`,`${flight.load.toFixed(1)} g`,
+      pressure?`${Math.round(pressure[1]*100)}% L · ${Math.round(pressure[0]*100)}% R`:null];
+    [...statRows.values()].forEach(({row,value},i)=>{
+      row.hidden=readings[i]===null;
+      if(!row.hidden&&value.textContent!==readings[i])value.textContent=readings[i];
+    });
+    flightStats.hidden=false;
+  }
+
   // ---- input
   const active=()=>document.body.dataset.uiMode==='player';
   window.addEventListener('keydown',e=>{
@@ -177,8 +210,9 @@ export function createPlayerUI({places,arriveAt,startParakite,startParamotor,par
     if(dir)move(...dir);else if(e.key==='Enter')travel();else if(e.code==='KeyL'){close();startParakite();}else if(e.code==='KeyP'&&paramotorRefusal()===null)paramotorNow();
   },true);
   const held=new Set();let stickReady=true;
-  function poll(){
+  function poll(now){
     renderCard();
+    renderFlightStats(now);
     if(open&&sheetName==='map'&&paramotorRefusal()!==paramotorShown)renderSide();
     if(active()){
       const pad=[...(navigator.getGamepads?.()??[])].find(p=>p?.connected);
