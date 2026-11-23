@@ -73,7 +73,7 @@ export function createNavigation(camera,canvas,orbit,ground,config,worldmap,rig,
   const cockpitForward=new T.Quaternion(0,1,0,0),headAttitude=new T.Quaternion();
   let pilotMotion=options.pilotMotion??'steady';
   let treeFraming=0,framedDistance=null,framedLift=0,framedLower=null;
-  let presentedGrounded=null,landingClipLeft=0,carried=null,tuckHeld=false,tape=null;
+  let presentedGrounded=null,landingClipLeft=0,carried=null,tuckHeld=false,padDiveHeld=false,tape=null;
   function frameMatrix(frame,out){
     flightLeft.set(frame.left[0],frame.left[2],-frame.left[1]);
     flightUp.set(frame.up[0],frame.up[2],-frame.up[1]);
@@ -297,6 +297,8 @@ export function createNavigation(camera,canvas,orbit,ground,config,worldmap,rig,
     if(mode==='walk'){
       time+=Math.min(dt,.05);
       tuckHeld=keys.has('ShiftLeft')||keys.has('ShiftRight')||(pad?.buttons[4]?.pressed??false);
+      // LB toggles the dive while swimming, as Shift does on the keyboard.
+      const padDive=pad?.buttons[4]?.pressed??false;if(padDive&&!padDiveHeld&&state?.mode==='swim')runToggled=!runToggled;padDiveHeld=padDive;
       // Keyboard movement runs by default; the stick ramps from a walk to a run.
       const keyed=['KeyW','KeyA','KeyS','KeyD'].some(code=>keys.has(code));
       runStick=keyed?1:Math.min(1,Math.hypot(lx,ly));
@@ -313,7 +315,7 @@ export function createNavigation(camera,canvas,orbit,ground,config,worldmap,rig,
         if(flightLesson)stepParakiteLesson(flightLesson.progress,previousFlight,state,input,1/120,height);
         time+=1/120;accumulator-=1/120;
       }
-      updateFlightPresentation(dt,flightPose());
+      updateFlightPresentation(dt,flightPose(),input.turn);
       feedbackTime+=dt;
       if(options.haptics?.()!==false&&effects&&feedbackTime>.12&&pad?.vibrationActuator?.playEffect){
         feedbackTime=0;const strength=state.grounded?0:Math.min(.45,Math.abs(state.turbulence)*.07+Math.max(0,state.load-1)*.15);
@@ -391,7 +393,7 @@ export function createNavigation(camera,canvas,orbit,ground,config,worldmap,rig,
       if(u>=1)shot=null;
     }else if(shot){
       shot.raw.copy(camera.position);shot.aim.copy(camera.quaternion);shot.t+=dt;
-      const u=Math.min(1,shot.t/SHOT_S),k=Math.max(introProgress,introShotEase(u));
+      const u=Math.min(1,shot.t/(shot.seconds??SHOT_S)),k=Math.max(introProgress,introShotEase(u));
       camera.position.lerpVectors(shot.from,shot.raw,k);camera.quaternion.slerpQuaternions(shot.q,shot.aim,k);
       camera.fov=shot.fov+(62-shot.fov)*k;camera.updateProjectionMatrix();
       clearCameraTerrain(camera.position,height,cameraTerrainRadius(camera));
@@ -509,7 +511,7 @@ export function createNavigation(camera,canvas,orbit,ground,config,worldmap,rig,
     }
     return pose;
   }
-  function updateFlightPresentation(dt,pose=state){
+  function updateFlightPresentation(dt,pose=state,turn=0){
     const resetBody=dt===0&&snap;
     const frame=flightFrame(pose,config);
     const coupled=pose.coupled&&!pose.grounded&&!pose.collapsed;
@@ -589,7 +591,12 @@ export function createNavigation(camera,canvas,orbit,ground,config,worldmap,rig,
     }
     const lineSagDirection=coupled?new T.Vector3(0,-1,0).transformDirection(new T.Matrix4().copy(flightMatrix).invert()).toArray():undefined;
     rig.userData.flightUpdate?.(dt,{...pose,harnessed:true},{pilotScale:characterConfig.scale,pilotAttachment:attachment?.position_m,pilotOffset,pilotTransform:coupled?pilotTransform:undefined,lineSagDirection,closeView:view==='first'&&coupled});
-    options.firstPersonBody?.({active:!pose.grounded&&!pose.collapsed&&!pose.launching,view,pilotMatrix,pilotScale:characterConfig.scale,state:pose,dt,reset:resetBody});
+    const pilotVelocity=pose.coupled?.pilotVelocity;
+    const previousVelocity=pose!==state?previousFlight?.coupled?.pilotVelocity:null;
+    const velocity=previousVelocity&&pilotVelocity?
+      pilotVelocity.map((value,i)=>previousVelocity[i]+(value-previousVelocity[i])*accumulator*120):pilotVelocity;
+    options.firstPersonBody?.({active:!pose.grounded&&!pose.collapsed&&!pose.launching,view,pilotMatrix,
+      pilotScale:characterConfig.scale,state:pose,dt,reset:resetBody,velocity,lean:-(pose.weightShift??turn)});
   }
   /** Steer, pedal or pole, brake, tuck and hop; a chase camera, or first person on V / Y. */
   function updateRide(dt,pad,x,y){
@@ -686,8 +693,15 @@ export function createNavigation(camera,canvas,orbit,ground,config,worldmap,rig,
     camera.position.copy(points[0]);camera.lookAt(focus);
     keys.clear();queuedPrimary=queuedHarness=hop=queuedSlide=false;drag=false;
   }
+  /** Start the walk-in glide from a held pose (the trail map's overhead view) instead of where the
+   * camera was: one straight, eased move to the live chase view over `seconds`. */
+  function glideFrom(position,quaternion,seconds){
+    if(mode!=='walk')return;
+    shot={from:position.clone(),q:quaternion.clone(),fov:camera.fov,raw:new T.Vector3(),aim:new T.Quaternion(),t:0,seconds};
+    camera.position.copy(position);camera.quaternion.copy(quaternion);
+  }
   function suspend(on){suspended=!!on;if(suspended){keys.clear();queuedPrimary=queuedHarness=hop=queuedSlide=false;}}
-  return {setPlayerMode,suspend,get suspended(){return suspended;},placeOnFoot,recordTape,stopTape,replayTape,constrainCamera(){clearCameraTerrain(camera.position,height,cameraTerrainRadius(camera));},cameraProfile:policy,select,warmArrival,introShot,update,poll,clear,changeHarness,launchHere,launchFromTree,get preferredFlightMode(){return preferredFlightMode;},set preferredFlightMode(next){if(config.modes[next])preferredFlightMode=next;},carry,alight,setWeather,setTimeOfDay,setChallenge,setPilotMotion,fixedEnvironmentSampler,sampleFloor:height,sampleEnvironment(x,y,z){return renderAir.sample(x,y,z);},setEffects(value){effects=value;},get message(){return message;},get underwater(){return mode==='walk'&&underwater;},get weather(){return weather;},get siteIndex(){return siteIndex;},get view(){return view;},get mode(){return mode;},get state(){return state;},get shot(){return shot;},cancelShot(){shot=null;},get shotActive(){return shot!==null;},get air(){return state&&config.modes[mode]?sampleAir(config,air,state,time,height):null;},get timeOfDay(){return timeOfDay;},
+  return {setPlayerMode,suspend,get suspended(){return suspended;},placeOnFoot,recordTape,stopTape,replayTape,constrainCamera(){clearCameraTerrain(camera.position,height,cameraTerrainRadius(camera));},cameraProfile:policy,select,warmArrival,introShot,glideFrom,update,poll,clear,changeHarness,launchHere,launchFromTree,get preferredFlightMode(){return preferredFlightMode;},set preferredFlightMode(next){if(config.modes[next])preferredFlightMode=next;},carry,alight,setWeather,setTimeOfDay,setChallenge,setPilotMotion,fixedEnvironmentSampler,sampleFloor:height,sampleEnvironment(x,y,z){return renderAir.sample(x,y,z);},setEffects(value){effects=value;},get message(){return message;},get underwater(){return mode==='walk'&&underwater;},get weather(){return weather;},get siteIndex(){return siteIndex;},get view(){return view;},get mode(){return mode;},get state(){return state;},get shot(){return shot;},cancelShot(){shot=null;},get shotActive(){return shot!==null;},get air(){return state&&config.modes[mode]?sampleAir(config,air,state,time,height):null;},get timeOfDay(){return timeOfDay;},
     prepareFlightLesson,beginFlightLesson,placeGuidedFlight,endGuidedFlight,endFlightLesson(){flightLesson=null;},get flightLesson(){return flightLesson;},
     dispose(){renderAir.dispose();window.removeEventListener('keydown',kd);window.removeEventListener('keyup',ku);window.removeEventListener('blur',clear);window.removeEventListener('gamepaddisconnected',clear);document.removeEventListener('visibilitychange',clear);canvas.removeEventListener('pointercancel',cancel);canvas.removeEventListener('lostpointercapture',cancel);canvas.removeEventListener('wheel',wheel);canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointerup',up);canvas.removeEventListener('pointermove',move);}};
 }
