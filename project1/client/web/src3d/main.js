@@ -26,14 +26,15 @@ import {createMirror} from './mirror.js';
 import {createReflections,createMovers,loadProbes,PROBE_FILE,MOVERS_LAYER,DEPTH_LAYER} from './reflections.js';
 import {createUnderwater} from './underwater.js';
 import { buildTreeGroundShadows } from './forest.js';
-import {instanceMatrix} from './world.js';
+import {instanceMatrix,toScene} from './world.js';
+import {openingShot} from './opening-shot.js';
 import {setTreeLighting} from './tree-surface.js';
 import {createDistantTreeShadows,updateTreeSunShadow,bindTreeSunShadow,setTreeShadowFocus,setNearTreeShadows,SCENERY_SHADOW_SPAN,SCENERY_SHADOW_RESOLUTION} from './tree-shadows.js';
 import {createRidgeCull} from './ridge-cull.js';
 import {buildForestField,forestField} from './forest-field.js';
 import {buildForestFloor} from './forest-floor.js';
 import {buildAdoptedRedwoods,releaseCrownSources} from './redwood-rendering.js';
-import { GroundSampler, HeightGrid, decodeGroundCover,mergeGroundCover,landscapeHeightGrid } from './heights.js';
+import { GroundSampler, HeightGrid, decodeGroundCover,mergeGroundCover,coverAmount,landscapeHeightGrid } from './heights.js';
 import { buildCloseMeadow, meadowViewFocus } from './groundcover.js';
 import {buildGrassCanopy} from './grass-canopy.js';
 import { parseGLB, applyImageBytes, mergePrimitives } from './glb.js';
@@ -170,7 +171,6 @@ export async function main() {
   const sourceFarGrid = new HeightGrid({ values: new Float32Array(farBytes), ...manifest.height_grids.far_field, kind: 'far field source' });
   const blockGrid = new HeightGrid({ values: applyGeologyTerrain(sourceBlockGrid.values,manifest.height_grids.block,geologyData?.terrain?.block), ...manifest.height_grids.block, kind: 'block' });
   const farGrid = new HeightGrid({ values: sourceFarGrid.values, ...manifest.height_grids.far_field, kind: 'far field' });
-  const sourceGround=new GroundSampler(sourceBlockGrid,sourceFarGrid);
   const geologyHeight=geologyData?createGeologySampler(geologyData):null;
   const riverData=await fetchData('shared/world/out/river_granite.json');
   const riverSurface=createRiverGranite(riverData);
@@ -251,28 +251,41 @@ export async function main() {
   forest.group.add(legacyForest.group,adoptedForest.group);forest.refreshStats();scene.add(forest.group);
   const treeShadows=buildTreeGroundShadows(placement,assets,ground,renderer,adoptedForest.shadowCrowns);scene.add(treeShadows.group);
   const blockCover=decodeGroundCover(stampData),cover=mergeGroundCover(blockCover,decodeGroundCover(transition.grass));
-  const coverTexture=new T.DataTexture(Uint8Array.from(cover.covered,v=>v*255),cover.resolution,cover.resolution,T.RedFormat);
-  coverTexture.minFilter=coverTexture.magFilter=T.LinearFilter;coverTexture.needsUpdate=true;
-  style.cover.value=coverTexture;style.coverGrid.value.set(cover.offsetX,cover.offsetY,cover.quad,cover.resolution);
-  style.snowGrid.value.set(snowStamp.grid.offset_xy_m[0],snowStamp.grid.offset_xy_m[1],snowStamp.grid.quad_size_m,snowStamp.grid.resolution);
+  // Snow depths are vertex samples (y = offset + row * quad), so a texel's centre sits on its vertex.
+  const snowQuad=snowStamp.grid.quad_size_m;
+  style.snowGrid.value.set(snowStamp.grid.offset_xy_m[0]-snowQuad/2,snowStamp.grid.offset_xy_m[1]-snowQuad/2,snowQuad,snowStamp.grid.resolution);
   const snowAt=createSnowSampler(snowStamp);
   const trail=createTrailSampler(worldmap),surfaceAt=createSurfaceSampler(rideConfig,snowAt,trail);
   const snowTexture=new T.DataTexture(Uint8Array.from(snowAt.depth,d=>Math.round(Math.min(1,d/snowStamp.model.max_depth_m)*255)),snowAt.resolution,snowAt.resolution,T.RedFormat);
   snowTexture.minFilter=snowTexture.magFilter=T.LinearFilter;snowTexture.needsUpdate=true;style.snow.value=snowTexture;
   const forestFloor=buildForestFloor(forestCover,forestSoil,ground,snowAt,(x,y)=>surfaceAt(x,y)==='trail');scene.add(forestFloor.group);
-  // Interpret the shared grass habitat as sunlit sward; keep shaded forest
-  // litter, snow, exposed rock and the authored trail tread clear of blades.
-  const grassCover={resolution:cover.resolution,quad:cover.quad,offsetX:cover.offsetX,offsetY:cover.offsetY,covered:cover.covered.slice()};
+  // ONE reading of the shared grass stamp: how much sunlit sward each cell carries, 0..255.
+  // The terrain's sward tint, the blades, balance and footsteps all read it, so no ground is
+  // painted green without grass or grows grass the terrain does not paint (ground-seams
+  // review, findings 2/3/5/11/12). Every test is a ramp matched to the shader's own ramp for
+  // the same material, not a cut, so sward and blades fade out together. Read at the cell's
+  // own sample point on the rendered ground. ponytail: this is this client's interpretation
+  // of the stamp; publish it from the core once a second client needs the same answer.
+  const ramp=(a,b,v)=>{const t=Math.min(1,Math.max(0,(v-a)/(b-a)));return t*t*(3-2*t);};
+  const grassCover={resolution:cover.resolution,quad:cover.quad,offsetX:cover.offsetX,offsetY:cover.offsetY,covered:new Uint8Array(cover.covered.length),amount:new Uint8Array(cover.covered.length)};
   for(let row=0;row<cover.resolution;row++)for(let col=0;col<cover.resolution;col++){
-    const i=row*cover.resolution+col;if(!grassCover.covered[i])continue;
-    const x=cover.offsetX+col*cover.quad,y=cover.offsetY+row*cover.quad,h=ground.height(x,y);
-    const soilGround=sourceGround;
-    const sourceHeight=soilGround.height(x,y);
-    const slopePitch=4;
-    const slope=Math.hypot((soilGround.height(x+slopePitch,y)??h)-(soilGround.height(x-slopePitch,y)??h),(soilGround.height(x,y+slopePitch)??h)-(soilGround.height(x,y-slopePitch)??h))/(2*slopePitch);
+    const i=row*cover.resolution+col,stamped=cover.amount?cover.amount[i]/255:cover.covered[i];if(!stamped)continue;
+    const x=cover.offsetX+(col+.5)*cover.quad,y=cover.offsetY+(row+.5)*cover.quad,h=ground.height(x,y);
+    if(h===null||surfaceAt(x,y)==='trail')continue;
     const baseHeight=blockGrid.sample(x,y)??farGrid.sample(x,y),rockHeight=geologyHeight?.(x,y);
-    if((riverSurface.granite(x,y)??0)>.22||h===null||h<23||sourceHeight>1100||slope>.72||(rockHeight!=null&&rockHeight>baseHeight)||snowAt(x,y)>.03||surfaceAt(x,y)==='trail'||forestSoil.sample(x,y)>.48)grassCover.covered[i]=0;
+    if(rockHeight!=null&&rockHeight>baseHeight)continue;  // a granite roof over the soil
+    // Slope of the drawn terrain lattice itself (the soil's surface; rock roofs are tested above).
+    const soil=(sx,sy)=>landscapeGrid.sample(sx,sy)??h,pitch=4,slope=Math.hypot(soil(x+pitch,y)-soil(x-pitch,y),soil(x,y+pitch)-soil(x,y-pitch))/(2*pitch);
+    const grass=stamped*ramp(22,24,h)                       // style.js: sward smoothstep(22,24) over the shore
+      *(1-ramp(.03,.14,snowAt(x,y)))                        // style.js: coreSnow smoothstep(.03,.14)
+      *(1-ramp(.12,.32,riverSurface.granite(x,y)??0))       // the river's granite banks
+      *(1-ramp(.55,.85,slope))                              // style.js: slopeMask smoothstep(.5,.78) plus its noise
+      *(1-ramp(.4,.56,forestSoil.sample(x,y)));             // crown shade hands the ground to litter
+    grassCover.amount[i]=Math.round(grass*255);grassCover.covered[i]=+(grassCover.amount[i]>0);
   }
+  const coverTexture=new T.DataTexture(grassCover.amount,cover.resolution,cover.resolution,T.RedFormat);
+  coverTexture.minFilter=coverTexture.magFilter=T.LinearFilter;coverTexture.needsUpdate=true;
+  style.cover.value=coverTexture;style.coverGrid.value.set(cover.offsetX,cover.offsetY,cover.quad,cover.resolution);
   const grassGl=renderer.getContext();
   const meadow = buildGrassCanopy(grassCover,ground,{samples:grassGl.getParameter(grassGl.SAMPLES),batchTiles:6});
   scene.add(meadow.group);
@@ -299,13 +312,21 @@ export async function main() {
   // profile remains the shared physical floor; this offset only clears pixels.
   const characterHeight=(x,y)=>{const z=walkHeight.floorHeight(x,y),t=walkHeight.trailAt(x,y);return z===null?null:t?.beyond===0?Math.max(z,t.z+TRAIL_SURFACE_LIFT):z;};
   // Balance (shared/activities/balance.js) reads the ground he stands on as the client draws
-  // it: snow from the core's stamp, grass where blades are drawn or forest litter lies,
-  // granite everywhere else that is bare. ponytail: the grass/bare split is this client's
-  // reading of the cover stamp; move it into the core once a second client needs it.
+  // it (groundSurface, below): snow, grass, litter or trail are soft; the rest is granite.
   const balanceConfig=await fetchData('shared/activities/balance.json');checkVersion(balanceConfig,1,'balance rules');
   const [tumbleHill,reactionTable,places]=await Promise.all([fetchData('shared/play/tumble-hill.json'),fetchData('shared/play/reactions.json'),fetchData('shared/play/places.json')]);
   checkVersion(places,1,'named places');
-  const balanceSurface=(x,y)=>snowAt(x,y)>.03?'snow':closeMeadow.contains(x,y)||forestSoil.sample(x,y)>.48||surfaceAt(x,y)==='trail'?'grass':'granite';
+  // What is underfoot, as this client draws it: one answer for balance and for footsteps.
+  // Snow keeps the riders' own .03 m (shared/activities/ride.js); grass is the field above.
+  const groundSurface=(x,y)=>{
+    if(snowAt(x,y)>.03)return 'snow';
+    if(surfaceAt(x,y)==='trail')return 'trail';
+    const base=blockGrid.sample(x,y)??farGrid.sample(x,y),rock=geologyHeight?.(x,y);
+    if((riverSurface.granite(x,y)??0)>.22||rock!=null&&rock>base)return 'stone';
+    if(coverAmount(grassCover,x,y)>=.5)return 'grass';
+    return forestSoil.sample(x,y)>.48?'litter':'bare';
+  };
+  const balanceSurface=(x,y)=>({snow:'snow',trail:'grass',grass:'grass',litter:'grass'})[groundSurface(x,y)]??'granite';
   const localHost=/^(localhost|127\.0\.0\.1|\[::1\]|.+\.localhost)$/.test(location.hostname);
   const experimentalParakite=localHost&&new URLSearchParams(location.search).has('rotational-parakite');
   // Parakite-only sites sit after the shared launches, so a launch index means the same thing in every mode.
@@ -383,13 +404,7 @@ export async function main() {
   // Unclassified bare ground uses a restrained earth/grit texture, not a new world tag.
   function footstepSurface(s){
     if(s.mode==='branch')return 'wood';
-    if(snowAt(s.x,s.y)>.03)return 'snow';
-    if((riverSurface.granite(s.x,s.y)??0)>.22)return 'stone';
-    const base=blockGrid.sample(s.x,s.y)??farGrid.sample(s.x,s.y),rock=geologyHeight?.(s.x,s.y);
-    if(rock!=null&&rock>base)return 'stone';
-    if(surfaceAt(s.x,s.y)==='trail')return 'gravel';
-    const col=Math.round((s.x-cover.offsetX)/cover.quad),row=Math.round((s.y-cover.offsetY)/cover.quad);
-    return col>=0&&row>=0&&col<cover.resolution&&row<cover.resolution&&cover.covered[row*cover.resolution+col]?'grass':'gravel';
+    return ({snow:'snow',stone:'stone',trail:'gravel',grass:'grass',litter:'grass'})[groundSurface(s.x,s.y)]??'gravel';
   }
   let foleySpeed=0;
   function updateFoley(dt){
@@ -625,12 +640,8 @@ export async function main() {
   // behind and above, the player map arrives at it on foot. One list, so the two cannot drift apart.
   const placeById=Object.fromEntries(places.places.map(p=>[p.id,p]));
   const bearing=deg=>[Math.sin(deg*Math.PI/180),Math.cos(deg*Math.PI/180)];
-  // The first load opens on foot beside the tree village, facing it (2026-11-22: the hand-set pose on the village
-  // street stood inside a stair once the village was re-solved, "cat ronin spawns inside of a tree"). Derived, so it
-  // follows the world: the walkable ground nearest the village's place that is 10 m clear of the village trunks
-  // and 5 m of every other tree. Heading and yaw in radians as navigation.js keeps them (yaw = heading + pi/2).
   // Walkable ground nearest (x, y), 10 m clear of the village's trunks and 5 m of every other tree: where anyone is
-  // set down on foot (the opening, a place's arrival), so the world moving its trees never stands him inside one.
+  // set down when a place is selected or a terrain rebuild obstructs the authored opening spawn.
   const standClear=placement.instances.filter(i=>i.kind==='arboreal_tree'||i.kind==='redwood'||i.kind==='forest_tree')
     .map(i=>[i.position_m[0],i.position_m[1],i.kind==='arboreal_tree'?10:5]);
   function clearSpot(ax,ay){
@@ -640,13 +651,11 @@ export async function main() {
     }
     return [ax,ay];
   }
-  const OPENING_ARRIVAL=openingArrival(placeById['tree-village'],[-705,465]);
-  function openingArrival(place,[fx,fy]){
-    // He faces away from the village: the opening's chase camera stands in front of him looking back, so the
-    // village (and Juno, staged behind him) fill the frame beyond him.
-    const [x,y]=clearSpot(...place.arrive_xy_m),heading=Math.atan2(y-fy,x-fx);
-    return {x,y,heading,yaw:heading+Math.PI/2,pitch:-.072};
-  }
+  const {x:openingX,y:openingY,heading:openingHeading}=openingShot.ronin;
+  const [startX,startY]=walkSpawn(openingX,openingY,characterConfig.walk,walkHeight,hitTest,0)
+    ??clearSpot(...placeById['tree-village'].arrive_xy_m);
+  // Start in front of Ronin so the chase frame can see his face and the village beyond him.
+  const OPENING_ARRIVAL={x:startX,y:startY,heading:openingHeading,yaw:openingHeading+Math.PI/2,pitch:-.072};
   // Juno waits on open ground a few metres ahead of him on load, in the first view, so the parakite lessons are
   // easy to find ("Make sure Juno is well placed on-load"). She is a pilot who started in the air; she lands
   // here, then her own brain takes her on after a wait. The tour's first-visit offer stages her beside him again.
@@ -665,20 +674,7 @@ export async function main() {
       }
     }
   }
-  // The first load tours the village: it opens south of it looking up into the decks, swings west and
-  // north round the outside of the trunks (7 m or more from every tree, checked by ray against the scene
-  // on 2026-11-19) and settles in front of him. Points are [east, north, up] metres; the last leg ends
-  // on the live chase view. Only the first load uses it; Look around keeps its own viewpoint below.
-  // One spiral round the village: compass bearing from the focus, radius and height each eased with zero slope at both
-  // ends, so the path has no kinks and lands level and tangential on his chase pose (bearing 1.5, 46 m, 57 m up).
-  const OPENING_TOUR={seconds:9,focus:[-705,465,82],from:{bearing:157,radius:62,up:76},to:{bearing:361.5,radius:46,up:57},rise:16,samples:16};
-  OPENING_TOUR.waypoints=Array.from({length:OPENING_TOUR.samples+1},(_,i)=>{
-    const s=i/OPENING_TOUR.samples,e=s*s*(3-2*s),{from:a,to:b,focus:[fe,fn]}=OPENING_TOUR,mix=(x,y,w)=>x+(y-x)*w;
-    const bearing=mix(a.bearing,b.bearing,s)*Math.PI/180,radius=mix(a.radius,b.radius,e);
-    return [fe+radius*Math.sin(bearing),fn+radius*Math.cos(bearing),mix(a.up,b.up,e)+OPENING_TOUR.rise*Math.sin(Math.PI*s)**2];
-  });
-  const scenePoint=([e,n,u])=>new T.Vector3(e,u,-n);
-  const OPENING_VIEW={position:scenePoint(OPENING_TOUR.waypoints[0]).toArray(),target:scenePoint(OPENING_TOUR.focus).toArray()};
+  const openingPath=openingShot.waypoints.map(toScene),openingTarget=toScene(openingShot.target);
   function placeView(place){
     // Framed by hand in the game on 2026-11-19 (Fly camera; target 60 m along its look).
     if(place.id==='tree-village')return {position:[-723.2534,99.2090,-543.9767],target:[-704.3150,93.8070,-487.3008]};
@@ -791,7 +787,7 @@ export async function main() {
     learnParakite:()=>parakiteTour.offer({force:true}),
     flightStatsDock:()=>parakitePractice.statsDock??parakiteTour.statsDock,
     trees:placement.instances.filter(i=>i.asset.startsWith('redwood/')).map(i=>i.position_m),worldmap,course:speedflying.courses[0],
-    launch:flightConfig.launches[Number(parakiteSite)],timeOfDay:()=>timeOfDay,nextTimeOfDay:()=>dayOrder[(dayOrder.indexOf(timeOfDay)+1)%dayOrder.length],showLight:setLight,canvas,camera,fog:scene.fog});
+    launch:flightConfig.launches[Number(parakiteSite)],timeOfDay:()=>timeOfDay,nextTimeOfDay:()=>dayOrder[(dayOrder.indexOf(timeOfDay)+1)%dayOrder.length],showLight:setLight,canvas,camera,fog:scene.fog,clouds:cloudPass});
   // Two interfaces: the development panels, served locally, and the player's. Players always get theirs;
   // on a local server a switch (or the ` key) chooses, and remembers the choice.
   const storedMode=(()=>{try{return localStorage.getItem('tumbler.ui-mode');}catch{return null;}})();
@@ -883,7 +879,10 @@ export async function main() {
     const share=p=>Math.min(1,.45*Math.min(1,p.frames/16)+.55*(p.stable/p.stableFrames));
     const warmView=onProgress=>warmScene({...warmOptions,onProgress});
     // The first load warms the opening framing the glide starts from, not the Look around viewpoint.
-    if(!viewParam&&!requestedCourse&&!requestedPractice&&!requestedOrganoid&&!presentedOnce){camera.position.fromArray(OPENING_VIEW.position);controls.setTarget(...OPENING_VIEW.target);controls.update();}
+    if(!viewParam&&!requestedCourse&&!requestedPractice&&!requestedOrganoid&&!presentedOnce){
+      camera.position.copy(openingPath[0]);controls.setTarget(...openingTarget);controls.update();
+      camera.fov=openingShot.fov;camera.updateProjectionMatrix();
+    }
     const result=await warmView(p=>loading.meter(.66+.16*share(p),'Rendering the village…'));
     // A ?view=, ?course= or ?encounter= link is a developer shortcut that starts
     // where it is told, so it keeps the cheaper single-view startup.
@@ -919,7 +918,7 @@ export async function main() {
       loading.meter(.98,'Drawing the meadow…');
       // He is already standing at OPENING_ARRIVAL in walk mode; the camera opens on the tour's first
       // point and, once the player enters, flies it round to him. Input is held until it lands.
-      navigation.introShot(OPENING_TOUR.waypoints.map(scenePoint),scenePoint(OPENING_TOUR.focus),OPENING_TOUR.seconds);
+      navigation.introShot(openingPath,openingTarget,openingShot.seconds,openingShot.fov);
       const time=await nextPaint();
       if(contextLost||stopped)return;
       drawFrame(time,0);

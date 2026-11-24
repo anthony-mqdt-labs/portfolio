@@ -19,27 +19,27 @@
     },
     {
       "path": "client/web/data/reflections/probes-day.webp",
-      "sha256": "c2fef5ce69e3b4d5a057d4c6295248e6ea6dedf57974ed08f2fed40506eae1ae"
+      "sha256": "c819a1e430cf4e0fd9908881b15ec690003eaf1ed3c9bc5aa9db3d1454d8cd8e"
     },
     {
       "path": "client/web/data/reflections/probes-distance.png",
-      "sha256": "c5910768c8ed63097324fcd584bb55440111eb90c61a88cdb3939d4425aa71b5"
+      "sha256": "fb24fbed425f4c6abf9592bd04feadb9fb49cd07313618ce71857983cd68d53d"
     },
     {
       "path": "client/web/data/reflections/probes-dusk.webp",
-      "sha256": "d168a6202d2114f7ed0ad614c38f26e78fbcc21ca5a7d51c1597e679af569883"
+      "sha256": "fb118012577835b1395ceb6267909ce4b75ff12a949423dfab7381e8fd11320b"
     },
     {
       "path": "client/web/data/reflections/probes-golden.webp",
-      "sha256": "78608fb0124b35262354291da76c472d3d1696cdbf3f16a8f5aa083d1ffb973b"
+      "sha256": "8cac4c387e18aa93f9051f099fea712767ef86f5409fe1f61314e839a26f9573"
     },
     {
       "path": "client/web/data/reflections/probes.json",
-      "sha256": "21db09698d7f4a4b4eb3af929ab8485acf38c67ad4e66e7c1e7d881304eed407"
+      "sha256": "1f5832545c4df308cc0a10cb6561d1be52532f910ddd6ee66226263cabc706d3"
     },
     {
       "path": "client/web/scene.html",
-      "sha256": "512cd81fdebaac73f457426c4a531947e787e1ebd3956f8dc8a89cefc24b5c2c"
+      "sha256": "772d928baf5b3cf8c743502e4b4b57acde37f802e987bf890cc1d3ede2f002ad"
     },
     {
       "path": "client/web/src3d/actor-shadow.js",
@@ -95,7 +95,7 @@
     },
     {
       "path": "client/web/src3d/clouds.js",
-      "sha256": "87df043e8f37c1be0d5964043573a7d377d27439d68e7c26c0022d59f62b573e"
+      "sha256": "243111b5ddabb63b43196e35562825200aab112cc8a63c6cf5906fde93068f1f"
     },
     {
       "path": "client/web/src3d/collision.js",
@@ -155,7 +155,7 @@
     },
     {
       "path": "client/web/src3d/forest-field.js",
-      "sha256": "c04f8714322f8f7c08a24b2e96b9d51604ff91e3e49baefd9a7cfbff05915dee"
+      "sha256": "0f29f56b9dea34be8867b796bc19d202df414d8095758eaf5ae15d3846d1ffe7"
     },
     {
       "path": "client/web/src3d/forest-floor.js",
@@ -191,15 +191,15 @@
     },
     {
       "path": "client/web/src3d/grass-canopy.js",
-      "sha256": "8e3afcbf8706756c4c6f47f116164d05713c95c1b51310bad18c4b87dd652e9a"
+      "sha256": "3ba9abb9e78af7f0fe2025f83cf0d49a70417a32b08cb662aa4a112c062e5a91"
     },
     {
       "path": "client/web/src3d/groundcover.js",
-      "sha256": "455719197ed41f080338fe2f18e917040b3d01874a316f5d9928643a20902826"
+      "sha256": "b2cdf2c8231b491b0a205c08cdfe4c203219cdb3c15bd8272eca125177a8dab9"
     },
     {
       "path": "client/web/src3d/heights.js",
-      "sha256": "82676906a3c4b36afa23a451a3f86ceaecda29344d5d46112a918a51b105bc8d"
+      "sha256": "3ad4f2ce5bb575855fbe33f5ecadba0ed2a0d415effea305c90f81437e295261"
     },
     {
       "path": "client/web/src3d/insect-visits.js",
@@ -215,7 +215,7 @@
     },
     {
       "path": "client/web/src3d/main.js",
-      "sha256": "47376615a34492f79baf6ada9cf51bc5f4b2b90e43cebe5abba4a62f660fbfbf"
+      "sha256": "2b3fad7d5ef0abd4b5284cbae7be93472e03a53149b7d1b78f4c006766e1f931"
     },
     {
       "path": "client/web/src3d/meadow-shading.js",
@@ -227,7 +227,11 @@
     },
     {
       "path": "client/web/src3d/navigation.js",
-      "sha256": "61a7c9423bd0ba3e4e97d9943909d640238e2ee9d707cd7260101fc8e5d4bfed"
+      "sha256": "c355eae5e4cede8c0fc91bc500c21d747fc5e05c5ccb5eb09fe67806c9efd792"
+    },
+    {
+      "path": "client/web/src3d/opening-shot.js",
+      "sha256": "e3d48908c411a870f66b1fd103007bc1950edeac7fb3d9803385e5eed81651f6"
     },
     {
       "path": "client/web/src3d/organoid-encounter.js",
@@ -291,7 +295,7 @@
     },
     {
       "path": "client/web/src3d/player-ui.js",
-      "sha256": "9dce57bc79c427b98ae169f6f4d6251ee3f5f284f6fa0801440e9fda2c89eddd"
+      "sha256": "ef64ef2b200b9a830879d3ab927890338599c8ff04c34d6f296882240e5f58c9"
     },
     {
       "path": "client/web/src3d/player-visibility.js",
@@ -323,7 +327,7 @@
     },
     {
       "path": "client/web/src3d/style.js",
-      "sha256": "5887307639592ea831b3163ce581ddce529ba9a947f340e3100f82735cd7d5a7"
+      "sha256": "85dd46c126d6756d3ae69ba35e7ac11d9bcea7e338321f3e82d87ead8b452076"
     },
     {
       "path": "client/web/src3d/sun-pcf.js",
@@ -391,7 +395,7 @@
     },
     {
       "path": "client/web/src3d/version.js",
-      "sha256": "a785400142da724eed0476e24f1b9fad5e45343659a29cd4d0be976dbba2d804"
+      "sha256": "e4995799b9802dcddf0d7f13f50697131e3236cd283930f288f930a711624006"
     },
     {
       "path": "client/web/src3d/visibility-feather.js",
@@ -735,7 +739,7 @@
     },
     {
       "path": "shared/geometry/granite/geology.json",
-      "sha256": "b50e13af3bed57ba089c48ecabcf598114b49f10adbc8907e7432ca54c247419"
+      "sha256": "80778a8ff98523500d5adf4c02a5041898d05930ecc62ed3e7520db3ccd0d2f9"
     },
     {
       "path": "shared/geometry/granite/surface.js",
@@ -748,10 +752,6 @@
     {
       "path": "shared/geometry/homestead/homestead.meshopt.glb",
       "sha256": "dc061532288867c1c9154723a5a2ba5e74abf3c892beb14ea365465c5b47edcc"
-    },
-    {
-      "path": "shared/geometry/mooring/hardstanding.meshopt.glb",
-      "sha256": "54b16f9aef9c61997e3fcd48a3cbcc9b875159e227c6b15a904d292826938982"
     },
     {
       "path": "shared/geometry/mooring/mooring_mast.meshopt.glb",
@@ -791,7 +791,7 @@
     },
     {
       "path": "shared/geometry/river-granite/river_granite.glb",
-      "sha256": "6f9ccae2dddccdcbab362ec97b7c3b2aca077a54fe95d8ae3058da2cfb96e400"
+      "sha256": "39a448d8497844fa9408c42950088f040664a6fc79740afa1fb8da011286b193"
     },
     {
       "path": "shared/geometry/sports/bicycle.meshopt.glb",
@@ -987,7 +987,7 @@
     },
     {
       "path": "shared/world/out/ground_cover.json",
-      "sha256": "974cd2d3e81b20fe530734cbc7a32e32e28fdb0bbae908c317d3b4d1eb30015d"
+      "sha256": "fbd438dc04ffc10e5480269206ed83529d5f40557df5d7f5850cb62345e0039f"
     },
     {
       "path": "shared/world/out/horizon_map.png",
@@ -1003,11 +1003,11 @@
     },
     {
       "path": "shared/world/out/placement.json",
-      "sha256": "3d9c714a419daedc41904997bfc9971d178e82d4da406b2ba49f8c66bad3595e"
+      "sha256": "738a6a6564e6d6a998ee3864f05da35f3bca99d0dba2bb5eb15110a4905771c0"
     },
     {
       "path": "shared/world/out/river_granite.json",
-      "sha256": "4b17e5b6bb569db531911f89578b07ea3faaa6bf571f9f845866bada24baefd4"
+      "sha256": "122066ee23a8f5f5b0f6811b3842c13c24adcaaf05415dd48b1970da0155f8c6"
     },
     {
       "path": "shared/world/out/snow_cover.json",
@@ -1015,7 +1015,7 @@
     },
     {
       "path": "shared/world/worldmap.json",
-      "sha256": "e8033ca4fc499abe6731b9562c4d01511346c9b00a233b2ab278373089d1ce0b"
+      "sha256": "bf99121bf42cdfc65e780c3cfe81d94c3504afd56cd28c6d6b83c72d5cba54c3"
     },
     {
       "path": "client/web/data/heightmap.f32",
@@ -1058,7 +1058,6 @@
     "shared/geometry/flight/paramotor.glb": "shared/geometry/flight/paramotor.meshopt.glb",
     "shared/geometry/granite/terrain_patch.glb": "shared/geometry/granite/terrain_patch.meshopt.glb",
     "shared/geometry/homestead/homestead.glb": "shared/geometry/homestead/homestead.meshopt.glb",
-    "shared/geometry/mooring/hardstanding.glb": "shared/geometry/mooring/hardstanding.meshopt.glb",
     "shared/geometry/mooring/mooring_mast.glb": "shared/geometry/mooring/mooring_mast.meshopt.glb",
     "shared/geometry/redwood/giant_redwood.glb": "shared/geometry/redwood/giant_redwood.meshopt.glb",
     "shared/geometry/redwood/mountain_pine.glb": "shared/geometry/redwood/mountain_pine.meshopt.glb",
@@ -1097,16 +1096,16 @@
     "shared/geometry/waterside/sedge.glb": "shared/geometry/waterside/sedge.meshopt.glb"
   },
   "generator": "client/web/tools/make_viewer_data.py",
-  "commit": "9efa91f2",
+  "commit": "ace8889e",
   "notice": "The browser draws exported core geography and runs the engine-neutral shared flight, ski and bike rules. Fetched source/data/asset hashes identify this local build; commit is only a generation label.",
   "sources": [
     {
       "path": "shared/world/worldmap.json",
-      "sha256_12": "e8033ca4fc49"
+      "sha256_12": "bf99121bf42c"
     },
     {
       "path": "shared/world/out/placement.json",
-      "sha256_12": "3d9c714a419d"
+      "sha256_12": "738a6a6564e6"
     },
     {
       "path": "shared/world/out/fields_albedo.png",
