@@ -270,6 +270,68 @@ main{display:block;}
 /* a plate that carries a video hugs the film's own proportions (2146:1890), a still its own (3034:2038) */
 .plate-entry:has(.plate-video) .plate-visual{aspect-ratio:1.135/1;}
 .plate-entry:has(.plate-image) .plate-visual{aspect-ratio:3034/2038;}
+/* Spark's plate: same proportions and ribbon as the Glacial Valley still */
+.plate-entry:has(.plate-carousel) .plate-visual{aspect-ratio:3034/2038;}
+.plate-carousel{background:var(--panel);}
+.carousel-track{position:absolute;inset:0;}
+.carousel-slide{
+  position:absolute;inset:0;margin:0;opacity:0;
+  pointer-events:none;transition:opacity 280ms ease;
+}
+.carousel-slide.is-active{opacity:1;pointer-events:auto;}
+.carousel-img{
+  display:block;width:100%;height:100%;
+  object-fit:contain;background:var(--panel);
+}
+.carousel-zoom{
+  position:absolute;inset:0;z-index:1;padding:0;
+  border:0;background:transparent;cursor:zoom-in;
+}
+.carousel-zoom::after{
+  content:"\21d7";position:absolute;top:12px;left:12px;
+  width:28px;height:28px;display:grid;place-items:center;
+  border:1px solid var(--hairline);
+  background:rgba(27,25,22,0.75);color:rgba(241,236,226,0.85);
+  font-family:var(--font-mono);font-size:14px;
+  opacity:0;transition:opacity 200ms ease;
+}
+.carousel-zoom:hover::after,.carousel-zoom:focus-visible::after{opacity:1;}
+/* The caption is a literal .plate-fig-caption <p> (same tag, class and flow as
+   Plate 01). Only the controls are overlaid, pinned to the ribbon's text band. */
+.carousel-controls-layer{
+  position:absolute;right:10px;bottom:19px;z-index:2;
+  display:flex;align-items:center;gap:10px;
+  color:rgba(241,236,226,0.85);
+  font-family:var(--font-mono);font-size:10px;
+  letter-spacing:0.12em;text-transform:uppercase;
+}
+.carousel-dots{display:flex;align-items:center;gap:5px;flex:none;}
+.carousel-dot{
+  width:14px;height:3px;padding:0;border:0;background:var(--hairline);cursor:pointer;
+}
+.carousel-dot.is-active{background:var(--accent);}
+.carousel-controls{display:flex;gap:2px;flex:none;}
+.carousel-btn{
+  border:0;background:transparent;color:inherit;cursor:pointer;
+  font-family:var(--font-mono);font-size:10px;line-height:1;padding:3px 5px;
+}
+.carousel-btn:hover,.carousel-btn:focus-visible{color:var(--accent);}
+@media (prefers-reduced-motion:reduce){
+  .carousel-slide,.carousel-zoom::after{transition:none;}
+}
+/* enlarged carousel */
+.carousel-lightbox{
+  width:min(1100px,92vw);max-width:none;padding:0;overflow:visible;
+  border:1px solid var(--hairline);background:var(--panel);color:var(--ink);
+}
+.carousel-lightbox::backdrop{background:rgba(0,0,0,0.72);}
+.carousel-lightbox .plate-visual{aspect-ratio:3034/2038;}
+.lightbox-close{
+  position:absolute;top:-34px;right:0;padding:6px 0;
+  border:0;background:transparent;color:var(--ink);cursor:pointer;
+  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+}
+.lightbox-close:hover,.lightbox-close:focus-visible{color:var(--accent);}
 .plate-fig-caption{
   position:relative;z-index:1;
   width:100%;padding:8px 10px;
@@ -404,6 +466,7 @@ main{display:block;}
   .plate-visual{aspect-ratio:16/9;}
   .plate-entry:has(.plate-video) .plate-visual{aspect-ratio:1.135/1;}
   .plate-entry:has(.plate-image) .plate-visual{aspect-ratio:3034/2038;}
+  .plate-entry:has(.plate-carousel) .plate-visual{aspect-ratio:3034/2038;}
   .index-cats{grid-template-columns:1fr 1fr;}
   .colophon-grid{grid-template-columns:1fr;}
   .masthead-meta .mono:last-child{display:none;}
@@ -561,7 +624,13 @@ const CONTENT = {
    "name": "Spark",
    "url": "https://github.com/anthony-mqdt-labs/spark",
    "note": "Orchestrates local LLM inference runtime CLIs (MLX, llama.cpp, Ollama) via subprocess \u2014 config-as-data, Keychain-backed secrets, and bounded auto-recovery.",
-   "tags": ["Python","MLX","LLM inference","Orchestration"]
+   "tags": ["Python","MLX","LLM inference","Orchestration"],
+   "carousel": [
+     { "src": "spark-shots/spark-list-slide.webp", "alt": "spark list: runnable models with size and research state columns", "caption": "List — disk truth" },
+     { "src": "spark-shots/spark-doctor-slide.webp", "alt": "spark doctor: host budgets, runtime health, and next steps", "caption": "Doctor — diagnostics" },
+     { "src": "spark-shots/architecture-slide.webp", "alt": "Spark architecture: CLI, core, runtime adapters, and external processes", "caption": "Architecture" },
+     { "src": "spark-shots/spark-launch-slide.webp", "alt": "Animated launch lifecycle: preflight, spawn, health, warmup, restart, and shutdown", "caption": "Launch lifecycle" }
+   ]
   }
  ],
  "skills": {
@@ -640,7 +709,37 @@ function renderMain() {
     'radial-gradient(ellipse at 50% 60%, color-mix(in srgb, var(--accent) 22%, var(--panel)) 0%, transparent 50%), var(--panel)'
   ];
   const platesHTML = CONTENT.projects.map((p, i) => {
-    const visual = p.image
+    const visual = p.carousel
+      ? '<div class="plate-visual plate-carousel" role="group" aria-roledescription="carousel"' +
+          ' aria-label="' + esc(p.name) + ' visuals" tabindex="0" data-carousel>' +
+          '<div class="carousel-track">' +
+          p.carousel.map((s, j) =>
+            '<figure class="carousel-slide' + (j === 0 ? ' is-active' : '') + '"' +
+              ' data-caption="Plate ' + figNums[i] + ' — ' + esc(s.caption) + '"' +
+              ' aria-hidden="' + (j === 0 ? 'false' : 'true') + '">' +
+              '<img class="carousel-img" src="' + esc(s.src) + '" alt="' + esc(s.alt) + '"' +
+                ' loading="' + (j === 0 ? 'eager' : 'lazy') + '" decoding="async">' +
+            '</figure>'
+          ).join('') +
+          '</div>' +
+          '<button type="button" class="carousel-zoom" data-carousel-zoom aria-label="Enlarge ' + esc(p.name) + ' visuals"></button>' +
+          '<p class="plate-fig-caption mono" data-carousel-caption>Plate ' + figNums[i] + ' &mdash; ' + esc(p.carousel[0].caption) + '</p>' +
+          '<div class="carousel-controls-layer mono">' +
+            '<div class="carousel-dots" role="group" aria-label="Choose visual">' +
+              p.carousel.map((s, j) =>
+                '<button type="button" class="carousel-dot' + (j === 0 ? ' is-active' : '') + '"' +
+                  ' aria-pressed="' + (j === 0 ? 'true' : 'false') + '"' +
+                  ' aria-label="Show visual ' + (j + 1) + ': ' + esc(s.caption) + '"' +
+                  ' data-carousel-dot="' + j + '"></button>'
+              ).join('') +
+            '</div>' +
+            '<div class="carousel-controls">' +
+              '<button type="button" class="carousel-btn" data-carousel-prev aria-label="Previous visual">←</button>' +
+              '<button type="button" class="carousel-btn" data-carousel-next aria-label="Next visual">→</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      : p.image
       ? '<a class="plate-visual plate-visual--link" href="' + esc(p.url) + '" aria-label="Open ' + esc(p.name) + '">' +
           '<img class="plate-image" src="' + esc(p.image) + '" alt="" loading="lazy" decoding="async">' +
           '<p class="plate-fig-caption mono">Plate ' + figNums[i] + ' &mdash; ' + esc(p.name) + '</p>' +
@@ -1319,9 +1418,113 @@ function sync() {
   }
 }
 
+/* ---- spark plate carousel ---- */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function initCarousel(root, opts = {}) {
+  const auto = opts.auto !== false;
+  const slides = Array.from(root.querySelectorAll('.carousel-slide'));
+  const dots = Array.from(root.querySelectorAll('.carousel-dot'));
+  const label = root.querySelector('[data-carousel-caption]');
+  if (slides.length < 2 || !label) return () => {};
+
+  let index = 0;
+  let timer = 0;
+
+  function show(next) {
+    index = (next + slides.length) % slides.length;
+    slides.forEach((slide, i) => {
+      const active = i === index;
+      slide.classList.toggle('is-active', active);
+      slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+    });
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('is-active', i === index);
+      dot.setAttribute('aria-pressed', i === index ? 'true' : 'false');
+    });
+    label.textContent = slides[index].dataset.caption || '';
+  }
+  function stop() {
+    if (timer) clearInterval(timer);
+    timer = 0;
+  }
+  function start() {
+    stop();
+    if (!auto || reducedMotion.matches || document.hidden || root.matches(':hover') ||
+        root.contains(document.activeElement)) return;
+    timer = setInterval(() => show(index + 1), 6000);
+  }
+
+  root.addEventListener('click', (e) => {
+    if (e.target.closest('[data-carousel-zoom]')) { openLightbox(root); return; }
+    if (e.target.closest('[data-carousel-prev]')) { show(index - 1); start(); }
+    else if (e.target.closest('[data-carousel-next]')) { show(index + 1); start(); }
+    else {
+      const dot = e.target.closest('[data-carousel-dot]');
+      if (dot) { show(Number(dot.dataset.carouselDot)); start(); }
+    }
+  });
+  root.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') { show(index - 1); start(); }
+    else if (e.key === 'ArrowRight') { show(index + 1); start(); }
+    else return;
+    e.preventDefault();
+  });
+  root.addEventListener('mouseenter', stop);
+  root.addEventListener('mouseleave', start);
+  root.addEventListener('focusin', stop);
+  root.addEventListener('focusout', (e) => {
+    if (!root.contains(e.relatedTarget)) start();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop(); else start();
+  });
+  if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', () => reducedMotion.matches ? stop() : start());
+  else if (reducedMotion.addListener) reducedMotion.addListener(() => reducedMotion.matches ? stop() : start());
+  start();
+  return stop;
+}
+
+function openLightbox(source) {
+  let dialog = document.querySelector('.carousel-lightbox');
+  if (!dialog) {
+    dialog = document.createElement('dialog');
+    dialog.className = 'carousel-lightbox';
+    document.body.appendChild(dialog);
+  }
+  const clone = source.cloneNode(true);
+  clone.removeAttribute('tabindex');
+  clone.classList.add('lightbox-carousel');
+  const zoom = clone.querySelector('[data-carousel-zoom]');
+  if (zoom) zoom.remove();
+  const active = Array.from(clone.querySelectorAll('.carousel-slide')).findIndex(
+    (slide) => slide.classList.contains('is-active')
+  );
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'lightbox-close mono';
+  close.textContent = 'Close \u00d7';
+  close.setAttribute('aria-label', 'Close enlarged visuals');
+  dialog.replaceChildren(close, clone);
+  const stop = initCarousel(clone, { auto: false });
+  if (active > 0) {
+    clone.querySelectorAll('[data-carousel-dot]')[active]?.click();
+  }
+  dialog.onclose = stop;
+  close.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  dialog.showModal();
+  close.focus();
+}
+
+function initCarousels() {
+  document.querySelectorAll('[data-carousel]').forEach((root) => initCarousel(root));
+}
+
 /* ---- init ---- */
 renderChrome();
 renderMain();
+initCarousels();
 
 try {
   if (document.documentElement.classList.contains('no-webgl')) throw new Error('no webgl2');
