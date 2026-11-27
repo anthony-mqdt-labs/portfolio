@@ -7,14 +7,15 @@
 <link rel="icon" href="favicon.ico" sizes="32x32">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/fraunces@5/400.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/fraunces@5/500.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/fraunces@5/600.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/fraunces@5/700.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/fraunces@5/400italic.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/fraunces@5/700italic.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5/400.css">
 <style>
+/* self-hosted, latin subset only: @fontsource/fraunces@5.3.0, @fontsource/jetbrains-mono@5.3.0 */
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/fraunces-latin-400-normal.woff2) format('woff2');}
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/fraunces-latin-500-normal.woff2) format('woff2');}
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/fraunces-latin-600-normal.woff2) format('woff2');}
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/fraunces-latin-700-normal.woff2) format('woff2');}
+@font-face{font-family:'Fraunces';font-style:italic;font-weight:400;font-display:swap;src:url(fonts/fraunces-latin-400-italic.woff2) format('woff2');}
+@font-face{font-family:'Fraunces';font-style:italic;font-weight:700;font-display:swap;src:url(fonts/fraunces-latin-700-italic.woff2) format('woff2');}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2');}
 /* ================================================================
    D7 — THE PERIODICAL / VERSION Nº 001
    Newsmagazine portfolio: masthead, cover plate, features, colophon
@@ -631,6 +632,12 @@ const CONTENT = {
      { "src": "spark-shots/architecture-slide.webp", "alt": "Spark architecture: CLI, core, runtime adapters, and external processes", "caption": "Architecture" },
      { "src": "spark-shots/spark-launch-slide.webp", "alt": "Animated launch lifecycle: preflight, spawn, health, warmup, restart, and shutdown", "caption": "Launch lifecycle" }
    ]
+  },
+  {
+   "name": "Symbiote",
+   "url": "https://github.com/anthony-mqdt-labs/symbiote",
+   "note": "Desktop training app that pairs an embedded terminal and agent powered workspace. The goal is to remove as much friction from learning as possible. Courses are project based and an agent acts as a pair-programming partner adapting to performance and struggles. An interviewer mode is also available.",
+   "tags": ["Rust","GPUI","LLM"]
   }
  ],
  "skills": {

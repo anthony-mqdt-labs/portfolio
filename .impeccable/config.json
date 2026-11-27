@@ -1,0 +1,32 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "fraunces",
+        "createdAt": "2026-11-27T07:39:30.142Z",
+        "reason": "user confirmed: likes Fraunces, self-hosted it 2026-11-26"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-27T07:39:30.183Z",
+        "reason": "false positive: rendered with real fonts at 320-1920px, masthead text 12px from rule, cover-lockup >=17px; detector reads static padding:0 / mixes media rules"
+      },
+      {
+        "rule": "buried-raster",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-27T07:39:30.231Z",
+        "reason": "intentional 1x1 canarytokens tripwire pixel present since 778f905, not a design raster"
+      }
+    ]
+  }
+}

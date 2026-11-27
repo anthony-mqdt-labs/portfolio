@@ -2,3 +2,5 @@
 docs/
 agentic-trading/
 tools/
+.claude/
+.impeccable/hook.cache.json
